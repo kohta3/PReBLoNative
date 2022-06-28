@@ -46,7 +46,6 @@ class _StartPageState extends State<StartPage> {
 
   @override
   Widget build(BuildContext context) {
-    var screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       appBar: NewGradientAppBar(

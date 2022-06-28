@@ -27,8 +27,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     'メバチマグロ噴火山',
     '本マグロ噴火山',
   ];
-  List<String> images = ['https://pbs.twimg.com/media/FUtHmHBXoAADWF7?format=jpg&name=large',
-    'https://pbs.twimg.com/media/FUYeYK0VEAA2_UE?format=jpg&name=large',];
+  List<String> images = [
+    'https://pbs.twimg.com/media/FUtHmHBXoAADWF7?format=jpg&name=large',
+    'https://pbs.twimg.com/media/FUYeYK0VEAA2_UE?format=jpg&name=large',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       children: [
         SizedBox(
           width: double.infinity,
-          height: MediaQuery.of(context).size.height * 0.5,
+          height: MediaQuery.of(context).size.height * 0.4,
           child: const GoogleMap(
             initialCameraPosition: CameraPosition(
               target: LatLng(32.8479276, 130.7257457),
@@ -47,21 +49,27 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             ),
           ),
         ),
-        SizedBox(
-            width: double.infinity,
-            height: MediaQuery.of(context).size.height * 0.3,
+        ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.4,
+              minHeight: MediaQuery.of(context).size.height * 0.2,
+              maxWidth: double.infinity,
+              minWidth: double.infinity,
+            ),
             child: ListView(
               children: [
                 for (var test in tsets)
                   Row(
-                    children:  [
+                    children: [
                       Image(
-                        image: NetworkImage('https://pbs.twimg.com/media/FUtHmHBXoAADWF7?format=jpg&name=large'),
+                        image: NetworkImage(
+                            'https://pbs.twimg.com/media/FUtHmHBXoAADWF7?format=jpg&name=large'),
                         width: screenSize.width * 0.4,
                         height: 80,
                         fit: BoxFit.cover,
                       ),
-                      Text(test)],
+                      Text(test)
+                    ],
                   ),
               ],
             ))
