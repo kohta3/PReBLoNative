@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
-import 'package:preblo/DirectionScreen.dart';
-import 'package:preblo/FavoriteScreen.dart';
 import 'package:preblo/SettingScreen.dart';
+import 'package:preblo/bottomNavScreen/DirectionScreen.dart';
+import 'package:preblo/bottomNavScreen/FavoriteScreen.dart';
+import 'package:preblo/bottomNavScreen/MyPage.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
-import 'TopPage.dart';
+import 'bottomNavScreen/TopPage.dart';
 
 class StartPage extends StatefulWidget {
   const StartPage({Key? key}) : super(key: key);
@@ -14,6 +16,17 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
+  @override
+  void initState() {
+    super.initState();
+    initialization();
+  }
+
+  void initialization() async {
+    await Future.delayed(const Duration(seconds: 2));
+    FlutterNativeSplash.remove();
+  }
+
   final List<String> entries = <String>['A', 'B', 'C'];
   var imageUrl1 = [
     'https://pbs.twimg.com/media/FTA5xHzVsAAkiZx?format=jpg&name=small',
@@ -33,7 +46,7 @@ class _StartPageState extends State<StartPage> {
     TopPage(),
     DirectionScreen(),
     FavoriteScreen(),
-    SettingScreen()
+    MyPage()
   ];
 
   int _selectedIndex = 0;
@@ -46,15 +59,21 @@ class _StartPageState extends State<StartPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: NewGradientAppBar(
         leading: const Icon(Icons.image_rounded),
         title: Image.asset('images/logo.png', alignment: Alignment.topRight),
         actions: <Widget>[
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.add_box_rounded),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        SettingScreen()),
+              );
+            },
+            icon: const Icon(Icons.settings),
           ),
         ],
         gradient: LinearGradient(
@@ -84,8 +103,8 @@ class _StartPageState extends State<StartPage> {
             label: 'お気に入り',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: '管理',
+            icon: Icon(Icons.people_alt),
+            label: 'マイページ',
           ),
         ],
         // currentIndex: _selectedIndex,

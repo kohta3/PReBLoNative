@@ -41,7 +41,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       children: [
         SizedBox(
           width: double.infinity,
-          height: MediaQuery.of(context).size.height * 0.4,
+          height: MediaQuery.of(context).size.height * 0.45,
           child: const GoogleMap(
             initialCameraPosition: CameraPosition(
               target: LatLng(32.8479276, 130.7257457),
@@ -51,8 +51,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         ),
         ConstrainedBox(
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.4,
-              minHeight: MediaQuery.of(context).size.height * 0.2,
+              maxHeight: MediaQuery.of(context).size.height * 0.345,
+              minHeight: MediaQuery.of(context).size.height * 0.1,
               maxWidth: double.infinity,
               minWidth: double.infinity,
             ),
@@ -62,7 +62,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   Row(
                     children: [
                       Image(
-                        image: NetworkImage(
+                        image: const NetworkImage(
                             'https://pbs.twimg.com/media/FUtHmHBXoAADWF7?format=jpg&name=large'),
                         width: screenSize.width * 0.4,
                         height: 80,

@@ -45,12 +45,6 @@ class _SearchGenrePageState extends State<SearchGenrePage> {
     return Scaffold(
       appBar: NewGradientAppBar(
         title: const Text('ジャンル検索'),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.add_box_rounded),
-          ),
-        ],
         gradient: LinearGradient(
           colors: [Colors.lightBlue.shade200, Colors.deepPurple.shade200],
         ),

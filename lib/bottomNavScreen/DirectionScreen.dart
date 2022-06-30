@@ -36,6 +36,7 @@ class _DirectionScreenState extends State<DirectionScreen> {
       });
     }
   }
+
   void _selectTime2() async {
     final TimeOfDay? newTime = await showTimePicker(
       context: context,
@@ -47,6 +48,7 @@ class _DirectionScreenState extends State<DirectionScreen> {
       });
     }
   }
+
   void _selectTime3() async {
     final TimeOfDay? newTime = await showTimePicker(
       context: context,
@@ -58,6 +60,7 @@ class _DirectionScreenState extends State<DirectionScreen> {
       });
     }
   }
+
   void _selectTime4() async {
     final TimeOfDay? newTime = await showTimePicker(
       context: context,
@@ -197,8 +200,8 @@ class _DirectionScreenState extends State<DirectionScreen> {
                 ]),
                 SizedBox(
                     width: MediaQuery.of(context).size.width,
-                    child: Row(children: [
-                      const Text('👇登録する地域を教えてください。'),
+                    child: Row(children: const [
+                      Text('👇登録する地域を教えてください。'),
                     ])),
                 Row(
                   children: [
@@ -361,6 +364,22 @@ class _DirectionScreenState extends State<DirectionScreen> {
                   children: [
                     Container(
                       width: MediaQuery.of(context).size.width,
+                      child: Text('👇詳細&備考について。'),
+                    ),
+                    SizedBox(
+                        width: screenSize.width * 1,
+                        height: screenSize.height * 0.2,
+                        child: const TextField(
+                          obscureText: false,
+                          maxLines: 5,
+                          textAlignVertical: TextAlignVertical.bottom,
+                          decoration: InputDecoration(
+                            hintText: '詳細や説明があれば教えてください。',
+                            icon: Icon(Icons.description_outlined),
+                          ),
+                        )),
+                    Container(
+                      width: MediaQuery.of(context).size.width,
                       child: Text('👇URLを入力してください。'),
                     ),
                     SizedBox(
@@ -429,7 +448,10 @@ class _DirectionScreenState extends State<DirectionScreen> {
                     )),
                   ],
                 ),
-                ElevatedButton(onPressed: () {}, child: Text('submit'))
+                ElevatedButton(
+                    onPressed: () {}, 
+                    child: Wrap(children:
+                    [Text('投稿'),Icon(Icons.whatshot)]))
               ],
             ),
           ],

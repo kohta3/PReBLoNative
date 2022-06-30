@@ -16,7 +16,12 @@ class _SettingScreenState extends State<SettingScreen> {
     var screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-
+      appBar: NewGradientAppBar(
+        title: const Text('場所の名前'),
+        gradient: LinearGradient(
+          colors: [Colors.lightBlue.shade200, Colors.deepPurple.shade200],
+        ),
+      ),
       body: ListView(
         children: const [
           Text("設定")

@@ -119,12 +119,6 @@ class _SerchPlacePageState extends State<SerchPlacePage> {
     return Scaffold(
       appBar: NewGradientAppBar(
         title: const Text('地域検索'),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.add_box_rounded),
-          ),
-        ],
         gradient: LinearGradient(
           colors: [Colors.lightBlue.shade200, Colors.deepPurple.shade200],
         ),

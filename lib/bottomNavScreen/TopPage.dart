@@ -3,7 +3,7 @@ import 'package:preblo/SearchGenerPage.dart';
 import 'package:preblo/SearchPlacePage.dart';
 import 'package:like_button/like_button.dart';
 
-import 'submissionDetailsPage.dart';
+import '../submissionDetailsPage.dart';
 
 class TopPage extends StatefulWidget {
   const TopPage({Key? key}) : super(key: key);
