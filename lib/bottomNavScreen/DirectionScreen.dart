@@ -249,7 +249,6 @@ class _DirectionScreenState extends State<DirectionScreen> {
                         )),
                   ],
                 ),
-                Text(_location),
                 Row(children: [
                   const SizedBox(
                     child: Text('👇営業時間を教えてください。　わからない:'),
@@ -394,7 +393,7 @@ class _DirectionScreenState extends State<DirectionScreen> {
                           ),
                         )),
                     Container(
-                      padding: EdgeInsets.only(top: 10),
+                      padding: EdgeInsets.only(top: 20),
                       width: MediaQuery.of(context).size.width,
                       child: Text('👇電話番号を入力してください'),
                     ),
@@ -414,11 +413,10 @@ class _DirectionScreenState extends State<DirectionScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        _image == null
-                            ? const Text('No image selected.')
-                            : Image.file(_image!),
-                        const SizedBox(
-                          height: 30,
+                        Container(
+                          padding: EdgeInsets.only(top: 20),
+                          width: MediaQuery.of(context).size.width,
+                          child: Text('👇画像を選択してください'),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -440,18 +438,23 @@ class _DirectionScreenState extends State<DirectionScreen> {
                                 ),
                                 child: Row(children: const [
                                   Icon(Icons.image),
-                                  Text("写真を保存する")
+                                  Text("写真を選ぶ")
                                 ])),
                           ],
-                        )
+                        ),
+                        _image == null
+                            ? const Text('No image selected.')
+                            : Image.file(_image!),
+                        const SizedBox(
+                          height: 30,
+                        ),
                       ],
                     )),
                   ],
                 ),
                 ElevatedButton(
-                    onPressed: () {}, 
-                    child: Wrap(children:
-                    [Text('投稿'),Icon(Icons.whatshot)]))
+                    onPressed: () {},
+                    child: Wrap(children: [Text('投稿'), Icon(Icons.whatshot)]))
               ],
             ),
           ],

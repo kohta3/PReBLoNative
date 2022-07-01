@@ -6,7 +6,8 @@ import 'package:like_button/like_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class firstTabScreen extends StatefulWidget {
-  const firstTabScreen({Key? key}) : super(key: key);
+  final String PlaceName;
+  const firstTabScreen({Key? key,required this.PlaceName}) : super(key: key);
 
   @override
   State<firstTabScreen> createState() => _firstTabScreenState();
@@ -78,8 +79,8 @@ class _firstTabScreenState extends State<firstTabScreen> {
                   ],)),
             Container(
                 alignment: Alignment.topLeft,
-                child: const Text(
-                  'ところてんのすけ',
+                child: Text(
+                  widget.PlaceName,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                 )),
 

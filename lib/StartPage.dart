@@ -59,27 +59,26 @@ class _StartPageState extends State<StartPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: NewGradientAppBar(
-        leading: const Icon(Icons.image_rounded),
-        title: Image.asset('images/logo.png', alignment: Alignment.topRight),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        SettingScreen()),
-              );
-            },
-            icon: const Icon(Icons.settings),
+          leading: const Icon(Icons.image_rounded),
+          title: Image.asset('images/logo.png', alignment: Alignment.topRight),
+          actions: <Widget>[
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingScreen()),
+                );
+              },
+              icon: const Icon(Icons.settings),
+            ),
+          ],
+          gradient: LinearGradient(
+            colors: [Colors.lightBlue.shade200, Colors.deepPurple.shade200],
           ),
-        ],
-        gradient: LinearGradient(
-          colors: [Colors.lightBlue.shade200, Colors.deepPurple.shade200],
         ),
-      ),
       // extendBodyBehindAppBar: true,
 
       body: _screens[_selectedIndex],

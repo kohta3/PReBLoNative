@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 
+import 'Component/AppBar.dart';
 import 'DetailPage.dart';
 
 class SearchGenrePage extends StatefulWidget {
@@ -42,13 +43,11 @@ class _SearchGenrePageState extends State<SearchGenrePage> {
 
   @override
   Widget build(BuildContext context) {
+    var screenSize = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: NewGradientAppBar(
-        title: const Text('ジャンル検索'),
-        gradient: LinearGradient(
-          colors: [Colors.lightBlue.shade200, Colors.deepPurple.shade200],
-        ),
-      ),
+      appBar: PreferredSize(
+          preferredSize: Size.fromHeight(screenSize.height * 0.07),
+          child: appBarComp(tittle: "ジャンル検索")),
       body: ListView.builder(
         itemCount: selectedGenre.length,
         itemBuilder: (BuildContext context, int index) {
@@ -84,10 +83,10 @@ class _SearchGenrePageState extends State<SearchGenrePage> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => DetailPage(
-                                    genre: nextGenre, region: "",
-                                    pref: "",
-                                    city: ""
-                                  )),
+                                      genre: nextGenre,
+                                      region: "",
+                                      pref: "",
+                                      city: "")),
                             );
                           },
                           child: Text(selectedGenre[index]));

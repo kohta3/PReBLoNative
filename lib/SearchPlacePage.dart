@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:http/http.dart' as http;
 
+import 'Component/AppBar.dart';
 import 'DetailPage.dart';
 
 class SerchPlacePage extends StatefulWidget {
@@ -116,13 +117,11 @@ class _SerchPlacePageState extends State<SerchPlacePage> {
 
   @override
   Widget build(BuildContext context) {
+    var screenSize = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: NewGradientAppBar(
-        title: const Text('地域検索'),
-        gradient: LinearGradient(
-          colors: [Colors.lightBlue.shade200, Colors.deepPurple.shade200],
-        ),
-      ),
+      appBar: PreferredSize(
+          preferredSize: Size.fromHeight(screenSize.height * 0.07),
+          child: appBarComp(tittle: "地域検索")),
       // extendBodyBehindAppBar: true,
 
       body: ListView(

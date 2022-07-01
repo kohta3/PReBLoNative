@@ -72,6 +72,7 @@ flutter_native_splash:
     image: 'images/logoAndroid12.png'
     icon_background_color_dark: '#262626'
     image_dark: 'images/logoAndroid12.png'
+    fullscreen: true
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
