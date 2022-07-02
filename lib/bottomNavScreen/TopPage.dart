@@ -4,6 +4,7 @@ import 'package:preblo/SearchPlacePage.dart';
 import 'package:like_button/like_button.dart';
 
 import '../submissionDetailsPage.dart';
+import '../testfolder/test.dart';
 
 class TopPage extends StatefulWidget {
   const TopPage({Key? key}) : super(key: key);
@@ -294,6 +295,13 @@ class _TopPageState extends State<TopPage> {
                       ),
                     ]),
                   ),
+                ElevatedButton(onPressed: (){
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                      builder: (context) =>
+                      CarouselDemo()));
+                }, child: Text('Test'))
               ],
             ),
           ),

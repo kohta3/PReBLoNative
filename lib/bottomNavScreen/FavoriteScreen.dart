@@ -85,6 +85,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       zoom: 13.0,
                       maxZoom: 17.0,
                       minZoom: 1.0,
+                      
                     ),
                     layers: [
                       TileLayerOptions(
