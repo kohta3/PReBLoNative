@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "32494450357",
+    "project_id": "my-project-34953-b6df5",
+    "storage_bucket": "my-project-34953-b6df5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:32494450357:android:66c62ab3885fa5b64470fc",
+        "android_client_info": {
+          "package_name": "com.preblo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "32494450357-89pbideooe27ersn7btg6sq25sbfbc9l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.preblo",
+            "certificate_hash": "56f7fd8cbaed572c1cd7e86f1149788b781c0767"
+          }
+        },
+        {
+          "client_id": "32494450357-fkajn78o8mp2jt40fkhipq3r4skn17pt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCVB1EMXkwGS7lLCa2XyODY09w5LTA_3Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "32494450357-fkajn78o8mp2jt40fkhipq3r4skn17pt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -5,7 +5,8 @@ import 'Component/AppBar.dart';
 import 'DetailPage.dart';
 
 class SearchGenrePage extends StatefulWidget {
-  const SearchGenrePage({Key? key}) : super(key: key);
+  const SearchGenrePage({Key? key,required this.userId}) : super(key: key);
+  final userId;
 
   @override
   State<SearchGenrePage> createState() => _SearchGenrePageState();
@@ -86,7 +87,9 @@ class _SearchGenrePageState extends State<SearchGenrePage> {
                                       genre: nextGenre,
                                       region: "",
                                       pref: "",
-                                      city: "")),
+                                      city: "",
+                                    userId: widget.userId,
+                                  )),
                             );
                           },
                           child: Text(selectedGenre[index]));

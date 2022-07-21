@@ -1,4 +1,4 @@
-package com.example.preblo
+package com.preblo
 
 import io.flutter.embedding.android.FlutterActivity
 

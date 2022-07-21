@@ -10,5 +10,7 @@ void main(List<String> argument) async {
       password: "69a6cbf80ab0316a8db78e428f87f70ebe8ffc5728375ed30f990db4db0caf63");
   await connection.open();
   print("connection");
+  List<List<dynamic>> results = await connection.query("SELECT all FROM information");
+  print(results);
   await connection.close();
 }

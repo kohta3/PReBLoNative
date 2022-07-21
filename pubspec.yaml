@@ -1,6 +1,7 @@
 name: preblo
 description: A new Flutter project.
 
+
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -27,28 +28,31 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  cached_network_image: ^3.2.1
+  carousel_slider: ^4.1.1
+  firebase_auth: ^3.4.2
+  firebase_core: ^1.19.2
   flutter:
     sdk: flutter
-
-
-  # The following adds the Cupertino Icons fonts to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  new_gradient_app_bar: ^0.2.0
-  postgres: ^2.4.4
-  like_button: ^2.0.4
+  flutter_dotenv: ^5.0.2
+  flutter_facebook_auth: ^4.4.0+1
+  flutter_map: ^2.0.0
+  flutter_map_location_marker: ^4.1.3
+  flutter_native_splash: ^2.2.0+1
+  flutter_signin_button: ^2.0.0
+  geolocator: ^9.0.0
+  google_sign_in: ^5.4.0
   http: ^0.13.4
-  geolocator: ^8.2.1
-  flutter_picker: ^2.0.3
   image_picker: ^0.8.5+3
-  platform_maps_flutter: ^1.0.2
-  google_maps_flutter: ^2.1.8
-  carousel_slider: ^4.1.1
+  intl: ^0.17.0
+  like_button: ^2.0.4
+  minio: ^3.5.0
+  new_gradient_app_bar: ^0.2.0
+  postgres: ^2.4.5
+  twitter_login: ^4.2.3
   url_launcher: ^6.1.4
-  flutter_launcher_icons: ^0.9.3
-  flutter_map: ^1.1.1
-  latlong: ^0.6.1
-
+  uuid: ^3.0.6
+  xml: ^5.0.2
 
 flutter_icons:
   android: true
@@ -60,18 +64,17 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_native_splash: ^2.2.3+1
 flutter_native_splash:
-  color: '#add8e6'
-  image: 'images/icon.png'
-  color_dark: '#262626'
-  image_dark: 'images/iconDark.png'
+  color: '#87cefa'
+  image: 'images/mark.png'
+  color_dark: '#000080'
+  image_dark: 'images/mark.png'
   fullscreen: true
   android_12:
-    icon_background_color: '#add8e6'
-    image: 'images/logoAndroid12.png'
-    icon_background_color_dark: '#262626'
-    image_dark: 'images/logoAndroid12.png'
+    icon_background_color: '#87cefa'
+    image: 'images/mark.png'
+    icon_background_color_dark: '#000080'
+    image_dark: 'images/mark.png'
     fullscreen: true
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -117,6 +120,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
      - images/
+     - .env
   #   - images/a_dot_ham.jpeg
 
   # An image assets can refer to one or more resolution-specific "variants", see

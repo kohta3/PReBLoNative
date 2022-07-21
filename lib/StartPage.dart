@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
+import 'package:preblo/Auth/LoginPage.dart';
 import 'package:preblo/SettingScreen.dart';
 import 'package:preblo/bottomNavScreen/DirectionScreen.dart';
 import 'package:preblo/bottomNavScreen/FavoriteScreen.dart';
 import 'package:preblo/bottomNavScreen/MyPage.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
+import 'InMyPage/accountManegment.dart';
 import 'bottomNavScreen/TopPage.dart';
 
 class StartPage extends StatefulWidget {
@@ -16,10 +19,13 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
+  var userState;
+
   @override
   void initState() {
     super.initState();
     initialization();
+    getAuth();
   }
 
   void initialization() async {
@@ -27,20 +33,18 @@ class _StartPageState extends State<StartPage> {
     FlutterNativeSplash.remove();
   }
 
-  final List<String> entries = <String>['A', 'B', 'C'];
-  var imageUrl1 = [
-    'https://pbs.twimg.com/media/FTA5xHzVsAAkiZx?format=jpg&name=small',
-    'https://pbs.twimg.com/media/FRzvnCJagAAoSU7?format=jpg&name=small',
-    'https://pbs.twimg.com/media/FRyc4p8acAAcmq8?format=jpg&name=small'
-  ];
-  var imageUrl2 = [
-    'https://pbs.twimg.com/media/FUtHmHBXoAADWF7?format=jpg&name=large',
-    'https://pbs.twimg.com/media/FUYeYK0VEAA2_UE?format=jpg&name=large',
-    'https://pbs.twimg.com/media/FURkhtlVEAAbXEP?format=jpg&name=large',
-    'https://pbs.twimg.com/media/FTS2p_SaQAEYye0?format=jpg&name=4096x4096',
-    'https://pbs.twimg.com/media/FTQPDUrUsAA2JVY?format=jpg&name=large',
-    'https://pbs.twimg.com/media/FTOKuYGVsAEhKJ9?format=jpg&name=large'
-  ];
+  getAuth() {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user != null) {
+        setState(() {
+          userState = user;
+        });
+      } else {
+        userState = null;
+      }
+    });
+  }
+
 
   static const _screens = [
     TopPage(),
@@ -59,26 +63,37 @@ class _StartPageState extends State<StartPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: NewGradientAppBar(
-          leading: const Icon(Icons.image_rounded),
-          title: Image.asset('images/logo.png', alignment: Alignment.topRight),
-          actions: <Widget>[
-            IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SettingScreen()),
-                );
-              },
-              icon: const Icon(Icons.settings),
-            ),
-          ],
-          gradient: LinearGradient(
-            colors: [Colors.lightBlue.shade200, Colors.deepPurple.shade200],
+        leading: GestureDetector(
+            onTap: () {
+              userState == null
+                  ? Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => loginPage()),
+                    )
+                  : Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AccountManagePage()));
+            },
+            child: Icon(Icons.account_circle)),
+        title: Image.asset('images/logo.png', alignment: Alignment.topRight),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingScreen()),
+              );
+            },
+            icon: const Icon(Icons.settings),
           ),
+        ],
+        gradient: LinearGradient(
+          colors: [Colors.lightBlue.shade200, Colors.deepPurple.shade200],
         ),
+      ),
       // extendBodyBehindAppBar: true,
 
       body: _screens[_selectedIndex],

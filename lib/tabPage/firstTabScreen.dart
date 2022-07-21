@@ -1,39 +1,84 @@
 // ignore_for_file: camel_case_types, unnecessary_null_comparison
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:like_button/like_button.dart';
+import 'package:postgres/postgres.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class firstTabScreen extends StatefulWidget {
-  final String PlaceName;
-  const firstTabScreen({Key? key,required this.PlaceName}) : super(key: key);
+  const firstTabScreen(
+      {Key? key,
+      required this.PlaceName,
+      required this.telephoneNumber,
+      required this.url,
+      required this.infoDetail,
+      required this.images,
+      required this.recommend,
+      required this.infoId,
+      required this.open1,
+      required this.close1,
+      required this.open2,
+      required this.close2,
+      required this.sunday,
+      required this.monday,
+      required this.tuesday,
+      required this.wednesday,
+      required this.thursday,
+      required this.friday,
+      required this.saturday,
+      required this.carPort,
+      required this.bicycleParking,
+      required this.pref,
+      required this.city,
+      required this.doNotKnow,
+      required this.secondHour,
+      required this.vacation,
+      required this.UserName,
+      required this.CountLike,
+      required this.AuthUserLikes,
+      required this.AuthUserId})
+      : super(key: key);
+  final PlaceName;
+  final telephoneNumber;
+  final url;
+  final infoDetail;
+  final images;
+  final recommend;
+  final infoId;
+  final open1;
+  final close1;
+  final open2;
+  final close2;
+  final sunday;
+  final monday;
+  final tuesday;
+  final wednesday;
+  final thursday;
+  final friday;
+  final saturday;
+  final carPort;
+  final bicycleParking;
+  final pref;
+  final city;
+  final doNotKnow;
+  final secondHour;
+  final vacation;
+  final UserName;
+  final CountLike;
+  final AuthUserLikes;
+  final AuthUserId;
 
   @override
   State<firstTabScreen> createState() => _firstTabScreenState();
 }
 
 class _firstTabScreenState extends State<firstTabScreen> {
+  bool isLikedBool = false;
   int star = 3;
-  var businessHoursOpen1 = '10:30';
-  var businessHoursClose1 = '15:30';
-  var businessHoursOpen2 = '17:30';
-  var businessHoursClose2 = '22:30';
-
   var urlLink = 'https://www.preblo.site/';
-
-  var Monday = true;
-  var Tuesday = true;
-  var Wednesday = false;
-  var Thursday = false;
-  var Friday = true;
-  var Saturday = false;
-  var Sunday = false;
-
-  bool parkingBike = false;
-  bool parkingCar = true;
-
-  String tel = '0120 - 00 - 2222';
   String? discription =
       "バイキングは【2部制】にさせていただきます。【1部】17:45-19:15（最終入場18:15）【2部】19:30-21:00（最終入場20:00）ご予約時か前日までにお時間の連絡をお願いいたします。尚、ご連絡がない場合は【1部】でのご案内となります。";
 
@@ -45,6 +90,29 @@ class _firstTabScreenState extends State<firstTabScreen> {
     'https://pbs.twimg.com/media/FTQPDUrUsAA2JVY?format=jpg&name=large',
     'https://pbs.twimg.com/media/FTOKuYGVsAEhKJ9?format=jpg&name=large'
   ];
+
+  Future<void> requestLikes(informationId) async {
+    var connection = PostgreSQLConnection(
+        "ec2-35-174-56-18.compute-1.amazonaws.com", 5432, "d7b3j5jpksdl1f",
+        username: "nidpustzmfzulk",
+        password:
+            "69a6cbf80ab0316a8db78e428f87f70ebe8ffc5728375ed30f990db4db0caf63",
+        useSSL: true);
+    await connection.open();
+    if (!isLikedBool) {
+      await connection.transaction((ctx) async {
+        await ctx.query(
+            "INSERT INTO likes (information_id,user_id,created_at,updated_at) VALUES ('${informationId}','${widget.AuthUserId}',current_timestamp,current_timestamp)"); //ここでライクが押された時の処理をする
+      });
+    } else {
+      await connection.transaction((ctx) async {
+        await ctx.query(
+            "DELETE FROM likes WHERE information_id='${informationId}' AND user_id='${widget.AuthUserId}'"); //すでにlikeの場合
+      });
+    }
+    await connection.close();
+  }
+
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
@@ -56,27 +124,32 @@ class _firstTabScreenState extends State<firstTabScreen> {
           child: Column(children: [
             Container(
                 alignment: Alignment.topLeft,
-                child: const Text(
-                  '東京<ところてん',
+                child: Text(
+                  '${widget.pref}<${widget.city}',
                 )),
-              Container(
-                  alignment: Alignment.topLeft,
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Row(crossAxisAlignment: CrossAxisAlignment.center,children: [
+            Container(
+                alignment: Alignment.topLeft,
+                padding: const EdgeInsets.only(top: 10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(100),
                       child: Image(
-                        image: NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7vC1coMEndWvlJ1uutJSClJLttqq9j2h3VQ&usqp=CAU',),
+                        image: NetworkImage(
+                          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7vC1coMEndWvlJ1uutJSClJLttqq9j2h3VQ&usqp=CAU',
+                        ),
                         width: 30,
                         height: 30,
                         fit: BoxFit.fill,
                       ),
                     ),
-                    const Text(
-                      'てんのすけ',
+                    Text(
+                      widget.UserName,
                       style: TextStyle(fontSize: 16),
                     )
-                  ],)),
+                  ],
+                )),
             Container(
                 alignment: Alignment.topLeft,
                 child: Text(
@@ -91,12 +164,12 @@ class _firstTabScreenState extends State<firstTabScreen> {
                 children: [
                   const Text('投稿者のおすすめ度:',
                       style: TextStyle(color: Colors.grey)),
-                  for (int i = 1; i <= star; i++)
+                  for (int i = 1; i <= widget.recommend; i++)
                     const Icon(
                       Icons.star,
                       color: Colors.orange,
                     ),
-                  for (int i = 1; i <= 5 - star; i++)
+                  for (int i = 1; i <= 5 - widget.recommend; i++)
                     const Icon(
                       Icons.star_outline,
                       color: Colors.grey,
@@ -106,15 +179,23 @@ class _firstTabScreenState extends State<firstTabScreen> {
             ),
 //////////////////////////////////////おすすめ度//////////////////////////////////////
 //////////////////////////////////////いいね//////////////////////////////////////
-           Container(
-             child: Row(children: [
-               const Text('いいね:',
-                   style: TextStyle(color: Colors.grey)),
-               const LikeButton(
-                   likeCount: 3,
-                   mainAxisAlignment: MainAxisAlignment.start),
-             ],),
-           ),
+            Container(
+              child: Row(children: [
+                const Text('いいね:', style: TextStyle(color: Colors.grey)),
+                LikeButton(
+                  padding: EdgeInsets.all(3),
+                  likeCount: widget.CountLike,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  isLiked: isLikedBool =
+                      widget.AuthUserLikes.contains(widget.infoId),
+                  onTap: (bool isLiked) async {
+                    requestLikes(widget.infoId);
+                    isLikedBool = isLiked;
+                    return !isLiked;
+                  },
+                )
+              ]),
+            ),
 //////////////////////////////////////いいね//////////////////////////////////////
 //////////////////////////////////////カルーセル//////////////////////////////////////
             Container(
@@ -123,15 +204,30 @@ class _firstTabScreenState extends State<firstTabScreen> {
                   color: Colors.grey[300],
                   child: CarouselSlider(
                     items: [
-                      for (int i = 0; i < 6; i++)
-                        Card(
-                          child: Image(
-                            image: NetworkImage(imageUrl[i]),
-                            width: 400,
-                            height: 140,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                      for (var image in widget.images)
+                        image != ''
+                            ? Card(
+                                child: CachedNetworkImage(
+                                  imageUrl: image,
+                                  width: 400,
+                                  height: 140,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : Card(
+                                child: Container(
+                                width: 400,
+                                height: 140,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.no_photography,
+                                    ),
+                                    Text('No data')
+                                  ],
+                                ),
+                              ))
                     ],
                     options: CarouselOptions(
                       initialPage: 0,
@@ -167,10 +263,25 @@ class _firstTabScreenState extends State<firstTabScreen> {
                           fontSize: 20),
                     ),
                   ]),
-                  (businessHoursOpen1 == null)
-                      ? Text("  $businessHoursOpen1～$businessHoursClose1")
-                      : Text(
-                          "  $businessHoursOpen1～$businessHoursClose1   $businessHoursOpen2～$businessHoursClose2"),
+                  widget.doNotKnow
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('わかりません'),
+                            Icon(Icons.sentiment_dissatisfied)
+                          ],
+                        )
+                      : widget.secondHour
+                          ? Text(widget.open1 +
+                              '～' +
+                              widget.close1 +
+                              '   ' +
+                              widget.open2 +
+                              '～' +
+                              widget.close2)
+                          : Text(widget.open1 + '～' + widget.close1),
+
+                  ////////////////////////////////ここに時間
                 ])),
 //////////////////////////////////////営業時間//////////////////////////////////////
 //////////////////////////////////////休みの日//////////////////////////////////////
@@ -204,32 +315,36 @@ class _firstTabScreenState extends State<firstTabScreen> {
                       ],
                     ),
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      (Monday == true)
+                      widget.monday
                           ? const Text('月  ',
                               style: TextStyle(decorationColor: Colors.grey))
                           : const SizedBox.shrink(),
-                      (Tuesday == true)
+                      widget.tuesday
                           ? const Text('火  ',
                               style: TextStyle(decorationColor: Colors.grey))
                           : const SizedBox.shrink(),
-                      (Wednesday == true)
+                      widget.wednesday
                           ? const Text('水  ',
                               style: TextStyle(decorationColor: Colors.grey))
                           : const SizedBox.shrink(),
-                      (Thursday == true)
+                      widget.thursday
                           ? const Text('木  ',
                               style: TextStyle(decorationColor: Colors.grey))
                           : const SizedBox.shrink(),
-                      (Friday == true)
+                      widget.friday
                           ? const Text('金  ',
                               style: TextStyle(decorationColor: Colors.grey))
                           : const SizedBox.shrink(),
-                      (Saturday == true)
+                      widget.saturday
                           ? const Text('土  ',
                               style: TextStyle(decorationColor: Colors.grey))
                           : const SizedBox.shrink(),
-                      (Sunday == true)
+                      widget.sunday
                           ? const Text('日',
+                              style: TextStyle(decorationColor: Colors.grey))
+                          : const SizedBox.shrink(),
+                      widget.vacation
+                          ? const Text('無し',
                               style: TextStyle(decorationColor: Colors.grey))
                           : const SizedBox.shrink(),
                     ])
@@ -261,7 +376,7 @@ class _firstTabScreenState extends State<firstTabScreen> {
                       ],
                     ),
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text('$tel'),
+                      Text(widget.telephoneNumber.toString()),
                     ])
                   ])),
             ]),
@@ -301,8 +416,8 @@ class _firstTabScreenState extends State<firstTabScreen> {
                             style: TextStyle(color: Colors.blue),
                           ),
                           onTap: () async {
-                            if (await canLaunchUrl(Uri.parse(urlLink))) {
-                              launchUrl(Uri.parse(urlLink));
+                            if (await canLaunchUrl(Uri.parse(widget.url))) {
+                              launchUrl(Uri.parse(widget.url));
                             }
                           },
                         ),
@@ -334,7 +449,7 @@ class _firstTabScreenState extends State<firstTabScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        (parkingBike == true)
+                        widget.bicycleParking
                             ? Row(
                                 children: const [
                                   Icon(
@@ -356,7 +471,7 @@ class _firstTabScreenState extends State<firstTabScreen> {
                         const SizedBox(
                           width: 20,
                         ),
-                        (parkingCar == true)
+                        (widget.carPort)
                             ? Row(
                                 children: const [
                                   Icon(
@@ -399,7 +514,9 @@ class _firstTabScreenState extends State<firstTabScreen> {
                           fontSize: 20),
                     ),
                   ]),
-                  Wrap(children: [Text('$discription')],)
+                  Wrap(
+                    children: [Text(widget.infoDetail)],
+                  )
                 ])),
           ]))
     ]));

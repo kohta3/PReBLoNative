@@ -8,17 +8,20 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' as latLng;
 import 'package:http/http.dart' as http;
 import 'package:preblo/main.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class secondTabScreen extends StatefulWidget {
   final double Latitude;
   final double Lightness;
   final String PlaceName;
+  final String image;
 
   secondTabScreen(
       {Key? key,
       required this.Latitude,
       required this.Lightness,
-      required this.PlaceName})
+      required this.PlaceName,
+      required this.image})
       : super(key: key);
 
   @override
@@ -32,6 +35,8 @@ class _secondTabScreenState extends State<secondTabScreen> with RouteAware {
   List<double> ResHotelLat = [];
   List<double> ResHotelLong = [];
   String reason = '';
+  bool isVisible = false;
+  String hiden = '非表示';
 
   final CarouselController _controller = CarouselController();
 
@@ -62,7 +67,7 @@ class _secondTabScreenState extends State<secondTabScreen> with RouteAware {
       'latitude': widget.Latitude.toString(),
       'longitude': widget.Lightness.toString(),
       'datumType': '1',
-      'hits': '6',
+      'hits': '10',
       'sort': 'standard',
       'searchRadius': '3',
       'applicationId': '1001393711643575856'
@@ -104,14 +109,10 @@ class _secondTabScreenState extends State<secondTabScreen> with RouteAware {
   //   debugPrint("didPushNext ${runtimeType}");
   // }
 
-  var imageUrl = [
-    'https://pbs.twimg.com/media/FUtHmHBXoAADWF7?format=jpg&name=large',
-    'https://pbs.twimg.com/media/FUYeYK0VEAA2_UE?format=jpg&name=large',
-    'https://pbs.twimg.com/media/FURkhtlVEAAbXEP?format=jpg&name=large',
-    'https://pbs.twimg.com/media/FTS2p_SaQAEYye0?format=jpg&name=4096x4096',
-    'https://pbs.twimg.com/media/FTQPDUrUsAA2JVY?format=jpg&name=large',
-    'https://pbs.twimg.com/media/FTOKuYGVsAEhKJ9?format=jpg&name=large'
-  ];
+  void hidenContoroller(bools, hidenText) {
+    isVisible = bools;
+    hiden = hidenText;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,105 +121,125 @@ class _secondTabScreenState extends State<secondTabScreen> with RouteAware {
     return Scaffold(
         body: Column(children: [
       Expanded(
-        child: Container(
-          padding: EdgeInsets.all(1),
-          width: screenSize.width * 1,
-          height: screenSize.height * 0.5,
-          child: FlutterMap(
-            options: MapOptions(
-              interactiveFlags: InteractiveFlag.drag |
-                  InteractiveFlag.flingAnimation |
-                  InteractiveFlag.pinchMove |
-                  InteractiveFlag.pinchZoom |
-                  InteractiveFlag.doubleTapZoom,
-              enableScrollWheel: true,
-              center: latLng.LatLng(widget.Latitude, widget.Lightness),
-              zoom: 13.0,
-              maxZoom: 17.0,
-              minZoom: 1.0,
-            ),
-            layers: [
-              TileLayerOptions(
-                urlTemplate:
-                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                subdomains: ['a', 'b', 'c'],
-                retinaMode: true,
-              ),
-              MarkerLayerOptions(
-                markers: [
-                  Marker(
-                      width: 300,
-                      height: 100,
-                      point: latLng.LatLng(widget.Latitude, widget.Lightness),
-                      builder: (ctx) => Column(
-                            children: [
-                              Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image(
-                                      image: NetworkImage(
-                                          'https://pbs.twimg.com/media/FUtHmHBXoAADWF7?format=jpg&name=large'),
-                                      width: 70,
-                                      height: 55,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    Text(widget.PlaceName,
-                                        style: TextStyle(
-                                            backgroundColor: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold))
-                                  ]),
-                              GestureDetector(
-                                child: Icon(
-                                  Icons.pin_drop,
-                                  color: Colors.redAccent,
-                                  size: 45,
-                                ),
-                              ),
-                            ],
-                          )),
-                  // for (int i = 0; i < ResHotelLat.length; i++)
-                    ...Iterable<int>.generate(4).map(
-                          (int pageIndex) =>
-                          Marker(
-                        width: 300,
-                        height: 100,
-                        point: latLng.LatLng(ResHotelLat[pageIndex], ResHotelLong[pageIndex]),
-                        builder: (ctx) => Column(
-                              children: [
-                                Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                          ResponseHotels[pageIndex]['hotelName']
-                                              .toString(),
-                                          style: TextStyle(
-                                              backgroundColor: Colors.white,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold))
-                                    ]),
-                                GestureDetector(
-                                  onTap: ()=>_controller.animateToPage(pageIndex),
-                                  child: Icon(
-                                    Icons.pin_drop,
-                                    color: Colors.blueAccent,
-                                    size: 30,
+        child: Stack(
+          alignment: Alignment.bottomRight,
+          children: [
+            Container(
+              width: screenSize.width * 1,
+              child: FlutterMap(
+                options: MapOptions(
+                  interactiveFlags: InteractiveFlag.drag |
+                      InteractiveFlag.flingAnimation |
+                      InteractiveFlag.pinchMove |
+                      InteractiveFlag.pinchZoom |
+                      InteractiveFlag.doubleTapZoom,
+                  enableScrollWheel: true,
+                  center: latLng.LatLng(widget.Latitude, widget.Lightness),
+                  zoom: 13,
+                  maxZoom: 17.0,
+                  minZoom: 1.0,
+                ),
+                layers: [
+                  TileLayerOptions(
+                    urlTemplate:
+                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    subdomains: ['a', 'b', 'c'],
+                    retinaMode: true,
+                  ),
+                  MarkerLayerOptions(
+                    markers: [
+                      Marker(
+                          anchorPos: AnchorPos.align(AnchorAlign.right),
+                          width: 300,
+                          height: 100,
+                          point:
+                              latLng.LatLng(widget.Latitude, widget.Lightness),
+                          builder: (ctx) => Row(
+                                children: [
+                                  Icon(
+                                    Icons.control_point,
+                                    color: Colors.redAccent,
+                                    size: 45,
                                   ),
-                                ),
-                                // ...Iterable<int>.generate(4).map(
-                                //       (int pageIndex) => Flexible(
-                                //     child: ElevatedButton(
-                                //       onPressed: () => _controller.animateToPage(pageIndex),
-                                //       child: Text("$pageIndex"),
-                                //     ),
-                                //   ),
-                                // ),
-                              ],
-                            )),)
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Image(
+                                          image: NetworkImage(widget.image),
+                                          width: 70,
+                                          height: 50,
+                                          fit: BoxFit.cover,
+                                        ),
+                                        Text(widget.PlaceName,
+                                            style: TextStyle(
+                                                backgroundColor: Colors.white,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold))
+                                      ]),
+                                ],
+                              )),
+                      ...Iterable<int>.generate(ResponseHotels.length).map(
+                        (int pageIndex) => Marker(
+                            anchorPos: AnchorPos.align(AnchorAlign.right),
+                            width: 300,
+                            height: 100,
+                            point: latLng.LatLng(ResHotelLat[pageIndex],
+                                ResHotelLong[pageIndex]),
+                            builder: (ctx) => GestureDetector(
+                                onTap: () {
+                                  _controller.animateToPage(pageIndex);
+                                },
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.place,
+                                      color: Colors.blueAccent,
+                                      size: 35,
+                                    ),
+                                    Visibility(
+                                      visible: isVisible,
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                                ResponseHotels[pageIndex]
+                                                        ['hotelName']
+                                                    .toString(),
+                                                style: TextStyle(
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    fontSize: 11,
+                                                    fontWeight:
+                                                        FontWeight.bold))
+                                          ]),
+                                    ),
+                                  ],
+                                ))),
+                      ), ////////////////////////////////////////////////////////////hotpapper準備
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
+            ),
+            Container(
+              padding: EdgeInsets.all(10),
+              child: ElevatedButton(
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(
+                        Colors.redAccent.withOpacity(0.5))),
+                onPressed: () {
+                  setState(() {
+                    isVisible == false
+                        ? hidenContoroller(true, '表示中')
+                        : hidenContoroller(false, '非表示');
+                  });
+                },
+                child: Text(hiden),
+              ),
+            )
+          ],
         ),
       ),
 //////////////////////////////////////カルーセル//////////////////////////////////////
@@ -233,11 +254,20 @@ class _secondTabScreenState extends State<secondTabScreen> with RouteAware {
                     child: Stack(
                   alignment: Alignment.bottomLeft,
                   children: [
-                    Image(
-                      image: NetworkImage(ResponsHotel['hotelImageUrl']),
-                      width: 400,
-                      height: 220,
-                      fit: BoxFit.cover,
+                    GestureDetector(
+                      onTap: () async {
+                        if (await canLaunchUrl(
+                            Uri.parse(ResponsHotel['hotelInformationUrl']))) {
+                          launchUrl(
+                              Uri.parse(ResponsHotel['hotelInformationUrl']));
+                        }
+                      },
+                      child: Image(
+                        image: NetworkImage(ResponsHotel['hotelImageUrl']),
+                        width: 400,
+                        height: 220,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                     Container(
                         color: Colors.black.withOpacity(0.5),
@@ -284,7 +314,22 @@ class _secondTabScreenState extends State<secondTabScreen> with RouteAware {
                                                 color: Colors.grey,
                                               )
                                           ],
-                                        )
+                                        ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    '最安値',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    ResponsHotel['hotelMinCharge'].toString(),
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    '円から',
+                                    style: TextStyle(color: Colors.white),
+                                  )
                                 ],
                               ),
                             ),
