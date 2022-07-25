@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:postgres/postgres.dart';
 import 'package:preblo/main.dart';
@@ -85,6 +86,15 @@ class _DetailPageState extends State<DetailPage> with RouteAware {
     }
   }
 
+  CacheManager get _defaultCacheManager => CacheManager(
+    Config(
+      'CachedImageKey',
+      stalePeriod: const Duration(days: 1),
+      maxNrOfCacheObjects: 150,
+    ),
+  );
+
+
   void didPush() async {
     databasePullData();
   }
@@ -129,6 +139,7 @@ class _DetailPageState extends State<DetailPage> with RouteAware {
                       );
                     },
                     child: CachedNetworkImage(
+                      cacheManager: _defaultCacheManager,
                       imageUrl: newInputCorrect[index][10],
                       width: screenSize.width * 0.33,
                       height: 120,

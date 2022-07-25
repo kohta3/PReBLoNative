@@ -14,7 +14,23 @@
       },
       "oauth_client": [
         {
-          "client_id": "32494450357-89pbideooe27ersn7btg6sq25sbfbc9l.apps.googleusercontent.com",
+          "client_id": "32494450357-jte65k39jfk0v1h27qlo67uhdh8peie8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.preblo",
+            "certificate_hash": "c87fa1b213f3848970677292c06cb52bff7839e7"
+          }
+        },
+        {
+          "client_id": "32494450357-masf2l96rds15d6nh9ai26ao1d56opje.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.preblo",
+            "certificate_hash": "b6005bfea8823b2e1ffb8b2653715a210399bc98"
+          }
+        },
+        {
+          "client_id": "32494450357-sn5bav4m1jouhj1nn1blg8qjpu10mjm7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.preblo",

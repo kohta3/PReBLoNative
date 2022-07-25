@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:postgres/postgres.dart';
+import 'package:preblo/provider/AdmodOverray.dart';
 
 import '../main.dart';
 
@@ -17,6 +19,7 @@ class AccountManagePage extends StatefulWidget {
 
 class _AccountManagePageState extends State<AccountManagePage> with RouteAware {
   File? _image;
+  bool loadAdmob = true;
   String? userName;
   String? uid;
   String? authUserName;
@@ -85,19 +88,29 @@ class _AccountManagePageState extends State<AccountManagePage> with RouteAware {
         "ec2-35-174-56-18.compute-1.amazonaws.com", 5432, "d7b3j5jpksdl1f",
         username: "nidpustzmfzulk",
         password:
-        "69a6cbf80ab0316a8db78e428f87f70ebe8ffc5728375ed30f990db4db0caf63",
+            "69a6cbf80ab0316a8db78e428f87f70ebe8ffc5728375ed30f990db4db0caf63",
         useSSL: true);
     await connection.open();
     await connection.transaction((ctx) async {
-      await ctx.query(
-          "UPDATE users SET name='${userName}' WHERE id='${userId}'");
+      await ctx
+          .query("UPDATE users SET name='${userName}' WHERE id='${userId}'");
     });
     await connection.close();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    AppOpenAdManager appOpenAdManager = AppOpenAdManager()..loadAd();
+    WidgetsBinding.instance
+        .addObserver(AppLifecycleReactor(appOpenAdManager: appOpenAdManager));
   }
 
   void didPush() async {
     await getUser();
   }
+
 
   Future _getImage() async {
     // ignore: deprecated_member_use

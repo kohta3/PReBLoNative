@@ -1,11 +1,15 @@
 // ignore_for_file: camel_case_types, unnecessary_null_comparison
 
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:like_button/like_button.dart';
 import 'package:postgres/postgres.dart';
+import 'package:preblo/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class firstTabScreen extends StatefulWidget {
@@ -75,8 +79,9 @@ class firstTabScreen extends StatefulWidget {
   State<firstTabScreen> createState() => _firstTabScreenState();
 }
 
-class _firstTabScreenState extends State<firstTabScreen> {
+class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
   bool isLikedBool = false;
+  bool ads = true;
   int star = 3;
   var urlLink = 'https://www.preblo.site/';
   String? discription =
@@ -113,10 +118,54 @@ class _firstTabScreenState extends State<firstTabScreen> {
     await connection.close();
   }
 
+  final BannerAd myBanner = BannerAd(
+    adUnitId: Platform.isAndroid
+        ? 'ca-app-pub-3022328775537673/3265971090'
+        : 'ca-app-pub-3022328775537673/3297760685',
+    size: AdSize.banner,
+    request: AdRequest(),
+    listener: BannerAdListener(),
+  );
+
+  final BannerAdListener listener = BannerAdListener(
+    // Called when an ad is successfully received.
+    onAdLoaded: (Ad ad) => print('Ad loaded.'),
+    // Called when an ad request failed.
+    onAdFailedToLoad: (Ad ad, LoadAdError error) {
+      // Dispose the ad here to free resources.
+      ad.dispose();
+      print('Ad failed to load: $error');
+    },
+    // Called when an ad opens an overlay that covers the screen.
+    onAdOpened: (Ad ad) => print('Ad opened.'),
+    // Called when an ad removes an overlay that covers the screen.
+    onAdClosed: (Ad ad) => print('Ad closed.'),
+    // Called when an impression occurs on the ad.
+    onAdImpression: (Ad ad) => print('Ad impression.'),
+  );
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  void didPush() async {
+    await myBanner.load();
+    setState(() {
+      ads = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
-
+    final AdWidget adWidget = AdWidget(ad: myBanner);
     return Scaffold(
         body: ListView(children: [
       Container(
@@ -518,7 +567,15 @@ class _firstTabScreenState extends State<firstTabScreen> {
                     children: [Text(widget.infoDetail)],
                   )
                 ])),
-          ]))
+          ])),
+          ads
+              ? SizedBox.shrink()
+              : Container(
+            alignment: Alignment.center,
+            child: adWidget,
+            width: myBanner.size.width.toDouble(),
+            height: myBanner.size.height.toDouble(),
+          ),
     ]));
   }
 }

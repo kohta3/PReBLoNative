@@ -122,7 +122,7 @@ class _googleAuthPageState extends State<googleAuthPage> with RouteAware {
         appBar: NewGradientAppBar(
           automaticallyImplyLeading: false,
           leading: Icon(Icons.opacity),
-          title: Text('google認証'),
+          title: Text('googleログイン'),
           gradient: LinearGradient(
             colors: [Colors.lightBlue.shade200, Colors.deepPurple.shade200],
           ),
@@ -138,7 +138,7 @@ class _googleAuthPageState extends State<googleAuthPage> with RouteAware {
                     padding: EdgeInsets.all(10),
                     alignment: Alignment.center,
                     width: screenSize.width * 0.9,
-                    child: Text('ご登録ありがとうございます!'),
+                    child: Text('ご登録・ログインありがとうございます!'),
                   ),
                   Container(
                     height: 200,

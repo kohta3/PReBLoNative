@@ -1,7 +1,8 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
@@ -19,7 +20,7 @@ class loginPage extends StatefulWidget {
   State<loginPage> createState() => _loginPageState();
 }
 
-class _loginPageState extends State<loginPage> {
+class _loginPageState extends State<loginPage> with RouteAware {
   bool _isObscure = true;
   String? address;
   String? password;
@@ -103,8 +104,10 @@ class _loginPageState extends State<loginPage> {
         .signInWithCredential(twitterAuthCredential);
   }
 
+
   @override
   Widget build(BuildContext context) {
+    var screenSize = MediaQuery.of(context).size;
     return Scaffold(
         appBar: NewGradientAppBar(
           title: Text('ログイン'),
@@ -135,12 +138,13 @@ class _loginPageState extends State<loginPage> {
                       padding: EdgeInsets.only(right: 10, left: 10),
                       child: Column(
                         children: [
-                          SizedBox(
-                              width: 300,
+                          Container(
+                              padding: EdgeInsets.only(bottom: 10),
+                              width: screenSize.width * 0.8,
                               child: TextFormField(
                                   decoration: const InputDecoration(
-                                    labelText: 'メールアドレスを入力してください',
-                                  ),
+                                      labelText: 'メールアドレスを入力してください',
+                                      focusColor: Colors.red),
                                   onChanged: (val) {
                                     email = val;
                                     setState(() {
@@ -148,7 +152,7 @@ class _loginPageState extends State<loginPage> {
                                     });
                                   })),
                           SizedBox(
-                              width: 300,
+                              width: screenSize.width * 0.8,
                               child: TextFormField(
                                   onChanged: (val) {
                                     password = val;
@@ -189,6 +193,9 @@ class _loginPageState extends State<loginPage> {
                           MaterialPageRoute(
                               builder: (context) => emailSignIn()));
                     }),
+                    SizedBox(
+                      height: 5,
+                    ),
                     SignInButton(Buttons.Google, onPressed: () {
                       trySignGoogle();
                     }),

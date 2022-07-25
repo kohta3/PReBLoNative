@@ -34,13 +34,16 @@ dependencies:
   firebase_core: ^1.19.2
   flutter:
     sdk: flutter
+  flutter_cache_manager: ^3.3.0
   flutter_dotenv: ^5.0.2
   flutter_facebook_auth: ^4.4.0+1
+  flutter_google_places: ^0.3.0
   flutter_map: ^2.0.0
   flutter_map_location_marker: ^4.1.3
   flutter_native_splash: ^2.2.0+1
   flutter_signin_button: ^2.0.0
   geolocator: ^9.0.0
+  google_mobile_ads: ^1.3.0
   google_sign_in: ^5.4.0
   http: ^0.13.4
   image_picker: ^0.8.5+3
@@ -49,6 +52,7 @@ dependencies:
   minio: ^3.5.0
   new_gradient_app_bar: ^0.2.0
   postgres: ^2.4.5
+  scroll_to_index: ^3.0.1
   twitter_login: ^4.2.3
   url_launcher: ^6.1.4
   uuid: ^3.0.6

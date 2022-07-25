@@ -1,7 +1,12 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:preblo/InMyPage/pastPosts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../InMyPage/accountManegment.dart';
 import '../NoAuth.dart';
@@ -79,9 +84,7 @@ class _MyPageState extends State<MyPage> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            passPostsScreen(
-                                              uID : uid
-                                            )),
+                                            passPostsScreen(uID: uid)),
                                   );
                                 },
                                 child: Text(
@@ -109,7 +112,7 @@ class _MyPageState extends State<MyPage> {
                                   style: TextStyle(fontSize: 20),
                                 ))),
                         SizedBox(
-                          height: 10,
+                          height: 30,
                         ),
                         Align(
                           alignment: Alignment.bottomCenter,
@@ -125,6 +128,19 @@ class _MyPageState extends State<MyPage> {
                               style: ElevatedButton.styleFrom(
                                 minimumSize: Size(250, 50),
                               )),
+                        ),
+                        SizedBox(height: 30,),
+                        InkWell(
+                          onTap: () async {
+                            var url =
+                                'https://hb.afl.rakuten.co.jp/hsc/29da5c82.34df9cc7.20bca631.12bbb9d1/?link_type=pict&ut=eyJwYWdlIjoic2hvcCIsInR5cGUiOiJwaWN0IiwiY29sIjoxLCJjYXQiOiI1NyIsImJhbiI6IjE0NjY3OTgiLCJhbXAiOmZhbHNlfQ%3D%3D';
+                            if (await canLaunchUrl(Uri.parse(url))) {
+                              launchUrl(Uri.parse(url));
+                            }
+                          },
+                          child: CachedNetworkImage(
+                            imageUrl: 'https://hbb.afl.rakuten.co.jp/hsb/29da5c82.34df9cc7.20bca631.12bbb9d1/?me_id=1&me_adv_id=1466798&t=pict',
+                          ),
                         )
                       ],
                     ),

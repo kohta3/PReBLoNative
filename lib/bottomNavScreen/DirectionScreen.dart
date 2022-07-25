@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import "package:google_maps_webservice/places.dart";
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -69,6 +71,7 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
 
   final picker = ImagePicker();
   List<XFile?> imageFileList = [];
+
 
   SubmitFunc() {
     print(selectedLargeGenre);
@@ -316,6 +319,7 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
     }
   }
 
+
   void _selectTime1() async {
     final TimeOfDay? newTime = await showTimePicker(
       context: context,
@@ -390,7 +394,7 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
 
   Future<void> AddressSearchApi() async {
     final url = Uri.parse(
-        'https://geoapi.heartrails.com/api/json?method=searchByGeoLocation&x=$Long&y=$Lat');
+        'https://geoapi.heartrails.com/api/json?method=searchByGeoLocation&x=$Lat&y=$Long');
     try {
       final response = await http.get(url);
       var res = jsonDecode(response.body);
@@ -580,6 +584,7 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
@@ -602,8 +607,23 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                               Column(
                                 children: [
                                   Container(
+                                    decoration: BoxDecoration(
+                                        gradient: LinearGradient(colors: [
+                                      Colors.lightBlueAccent.withOpacity(0.1),
+                                      Colors.purpleAccent.withOpacity(0.1)
+                                    ])),
                                     width: MediaQuery.of(context).size.width,
-                                    child: Text('👇今の気持ちを教えてください。※必須'),
+                                    child: Row(
+                                      children: [
+                                        Text('今の気持ちを教えてください。'),
+                                        Text(
+                                          '※必須',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                   SizedBox(
                                       width: screenSize.width * 1,
@@ -622,10 +642,97 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                           selectedComment = getTextComment;
                                         },
                                       )),
+                                  Center(
+                                      child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            gradient: LinearGradient(colors: [
+                                          Colors.lightBlueAccent
+                                              .withOpacity(0.1),
+                                          Colors.purpleAccent.withOpacity(0.1)
+                                        ])),
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        child: Text('画像を選択してください。※最大4枚'),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          ElevatedButton(
+                                              onPressed: _getImage,
+                                              style: ElevatedButton.styleFrom(
+                                                primary: Colors.brown,
+                                              ),
+                                              child: Row(children: const [
+                                                Icon(Icons.image),
+                                                Text("写真を選ぶ")
+                                              ])),
+                                          imageFileList.length != 0?
+                                          GestureDetector(
+                                            child: Row(
+                                              children: [
+                                                SizedBox(
+                                                  width: 20,
+                                                ),
+                                                Icon(
+                                                  Icons.clear,
+                                                  color: Colors.brown,
+                                                ),
+                                                Text(
+                                                  '選択をクリア',
+                                                  style: TextStyle(
+                                                      color: Colors.brown),
+                                                )
+                                              ],
+                                            ),
+                                            onTap: () {
+                                              setState(() {
+                                                imageFileList = [];
+                                              });
+                                            },
+                                          ):SizedBox.shrink()
+                                        ],
+                                      ),
+                                      imageFileList.length == 0
+                                          ? SizedBox.shrink()
+                                          : Wrap(
+                                              children: [
+                                                for (var image in imageFileList)
+                                                  Image.file(
+                                                    File(image!.path),
+                                                    width:
+                                                        screenSize.width * 0.4,
+                                                    height: 100,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                              ],
+                                            ),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                    ],
+                                  )),
                                   Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    child: Text('👇ジャンルを選択してください。※必須'),
-                                  ),
+                                      width: MediaQuery.of(context).size.width,
+                                      decoration: BoxDecoration(
+                                          gradient: LinearGradient(colors: [
+                                        Colors.lightBlueAccent.withOpacity(0.1),
+                                        Colors.purpleAccent.withOpacity(0.1)
+                                      ])),
+                                      child: Row(
+                                        children: [
+                                          Text('ジャンルを選択してください。'),
+                                          Text(
+                                            '※必須',
+                                            style: TextStyle(color: Colors.red),
+                                          ),
+                                        ],
+                                      )),
                                   Row(children: [
                                     DropdownButton(
                                       hint: Text(selectedLargeGenre),
@@ -717,9 +824,14 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  SizedBox(
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        gradient: LinearGradient(colors: [
+                                      Colors.lightBlueAccent.withOpacity(0.1),
+                                      Colors.purpleAccent.withOpacity(0.1)
+                                    ])),
                                     width: MediaQuery.of(context).size.width,
-                                    child: const Text('👇どのくらいおススメですか?'),
+                                    child: const Text('どのくらいおススメですか?'),
                                   ),
                                   Row(
                                     children: [
@@ -745,9 +857,24 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                       ),
                                     ],
                                   ),
-                                  SizedBox(
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        gradient: LinearGradient(colors: [
+                                      Colors.lightBlueAccent.withOpacity(0.1),
+                                      Colors.purpleAccent.withOpacity(0.1)
+                                    ])),
                                     width: MediaQuery.of(context).size.width,
-                                    child: const Text('👇なんていう場所ですか?※必須'),
+                                    child: Row(
+                                      children: [
+                                        Text('なんていう場所ですか?'),
+                                        Text(
+                                          '※必須',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                   Row(children: [
                                     Icon(Icons.travel_explore,
@@ -771,10 +898,15 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                       width: screenSize.width * 0.1,
                                     ),
                                   ]),
-                                  SizedBox(
+                                  Container(
+                                      decoration: BoxDecoration(
+                                          gradient: LinearGradient(colors: [
+                                        Colors.lightBlueAccent.withOpacity(0.1),
+                                        Colors.purpleAccent.withOpacity(0.1)
+                                      ])),
                                       width: MediaQuery.of(context).size.width,
                                       child: Row(children: [
-                                        Text('👇登録する地域を教えてください。'),
+                                        Text('登録する地域を教えてください。'),
                                         OutlinedButton(
                                           onPressed: () {
                                             getLocation();
@@ -785,16 +917,17 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                               fontSize: 11,
                                             ),
                                           ),
-                                          style: OutlinedButton.styleFrom(
+                                          style: ElevatedButton.styleFrom(
                                             surfaceTintColor: Colors.brown,
-                                            primary: Colors.brown,
+                                            primary: Colors.orange[100],
+                                            onPrimary: Colors.brown,
                                             side: BorderSide(
                                               color: Colors.brown, //枠線の色
                                             ), // 色
                                           ),
                                         )
                                       ])),
-                                  Column(
+                                  Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
@@ -824,6 +957,9 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                                 _requestAPI(selectedPref);
                                               });
                                             }),
+                                      ),
+                                      SizedBox(
+                                        width: 20,
                                       ),
                                       Center(
                                         child: cites == null
@@ -873,12 +1009,15 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                                   });
                                                 }),
                                       ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
                                       addressSmall.isEmpty
                                           ? Center(
                                               child: SizedBox(
                                               width: screenSize.width * 0.5,
                                               child: TextField(
-                                                maxLength: 20,
                                                 obscureText: false,
                                                 maxLines: 1,
                                                 textAlignVertical:
@@ -910,35 +1049,45 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                             )
                                     ],
                                   ),
+                                  SizedBox(
+                                    height: 30,
+                                  ),
 ///////////////////////////////////////////////////営業時間////////////////////////////////
-                                  Row(children: [
-                                    const SizedBox(
-                                      child: Text('👇営業時間を教えてください。'),
-                                    ),
-                                    OutlinedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          doNotKnow != false
-                                              ? hideController(
-                                                  false, 'わからない') //入力できるとき
-                                              : hideController(
-                                                  true, '入力する'); //わからないとき
-                                          isChecked = false;
-                                        });
-                                      },
-                                      child: Text(
-                                        ButtonHide,
-                                        style: TextStyle(fontSize: 10),
-                                      ),
-                                      style: OutlinedButton.styleFrom(
-                                        surfaceTintColor: Colors.brown,
-                                        primary: Colors.brown,
-                                        side: BorderSide(
-                                          color: Colors.brown, //枠線の色
-                                        ), // 色
-                                      ),
-                                    )
-                                  ]),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        gradient: LinearGradient(colors: [
+                                      Colors.lightBlueAccent.withOpacity(0.1),
+                                      Colors.purpleAccent.withOpacity(0.1)
+                                    ])),
+                                    width: screenSize.width * 1,
+                                    child: Row(children: [
+                                      Text('営業時間を教えてください。'),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            doNotKnow != false
+                                                ? hideController(
+                                                    false, 'わからない') //入力できるとき
+                                                : hideController(
+                                                    true, '入力する'); //わからないとき
+                                            isChecked = false;
+                                          });
+                                        },
+                                        child: Text(
+                                          ButtonHide,
+                                          style: TextStyle(fontSize: 10),
+                                        ),
+                                        style: ElevatedButton.styleFrom(
+                                          surfaceTintColor: Colors.brown,
+                                          primary: Colors.orange[100],
+                                          onPrimary: Colors.brown,
+                                          side: BorderSide(
+                                            color: Colors.brown, //枠線の色
+                                          ), // 色
+                                        ),
+                                      )
+                                    ]),
+                                  ),
                                   Column(children: [
                                     (doNotKnow == false)
                                         ? Row(
@@ -997,9 +1146,14 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
 /////////////////////////////////////////////休業日/////////////////////////////////////////////
                                         : Text(''),
                                   ]),
-                                  SizedBox(
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        gradient: LinearGradient(colors: [
+                                      Colors.lightBlueAccent.withOpacity(0.1),
+                                      Colors.purpleAccent.withOpacity(0.1)
+                                    ])),
                                     width: MediaQuery.of(context).size.width,
-                                    child: const Text('👇休みはありますか？'),
+                                    child: const Text('休みはありますか？'),
                                   ),
                                   Row(children: [
                                     Checkbox(
@@ -1043,9 +1197,15 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                   Column(
                                     children: [
                                       Container(
+                                        decoration: BoxDecoration(
+                                            gradient: LinearGradient(colors: [
+                                          Colors.lightBlueAccent
+                                              .withOpacity(0.1),
+                                          Colors.purpleAccent.withOpacity(0.1)
+                                        ])),
                                         width:
                                             MediaQuery.of(context).size.width,
-                                        child: Text('👇駐車場と駐輪場はありますか？'),
+                                        child: Text('駐車場と駐輪場はありますか？'),
                                       ),
                                       Row(
                                         mainAxisAlignment:
@@ -1090,9 +1250,15 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                       ),
 /////////////////////////////////////////////備考/////////////////////////////////////////////
                                       Container(
+                                        decoration: BoxDecoration(
+                                            gradient: LinearGradient(colors: [
+                                          Colors.lightBlueAccent
+                                              .withOpacity(0.1),
+                                          Colors.purpleAccent.withOpacity(0.1)
+                                        ])),
                                         width:
                                             MediaQuery.of(context).size.width,
-                                        child: Text('👇詳細&備考について。'),
+                                        child: Text('詳細&備考について。'),
                                       ),
                                       SizedBox(
                                           width: screenSize.width * 1,
@@ -1116,9 +1282,15 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                           )),
 /////////////////////////////////////////////URL/////////////////////////////////////////////
                                       Container(
+                                        decoration: BoxDecoration(
+                                            gradient: LinearGradient(colors: [
+                                          Colors.lightBlueAccent
+                                              .withOpacity(0.1),
+                                          Colors.purpleAccent.withOpacity(0.1)
+                                        ])),
                                         width:
                                             MediaQuery.of(context).size.width,
-                                        child: Text('👇URLを入力してください。'),
+                                        child: Text('URLを入力してください。'),
                                       ),
                                       SizedBox(
                                           width: screenSize.width * 1,
@@ -1137,11 +1309,19 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                             ),
                                           )),
 /////////////////////////////////////////////電話番号/////////////////////////////////////////////
+                                      SizedBox(
+                                        height: 20,
+                                      ),
                                       Container(
-                                        padding: EdgeInsets.only(top: 20),
+                                        decoration: BoxDecoration(
+                                            gradient: LinearGradient(colors: [
+                                          Colors.lightBlueAccent
+                                              .withOpacity(0.1),
+                                          Colors.purpleAccent.withOpacity(0.1)
+                                        ])),
                                         width:
                                             MediaQuery.of(context).size.width,
-                                        child: Text('👇電話番号を入力してください'),
+                                        child: Text('電話番号を入力してください'),
                                       ),
                                       SizedBox(
                                           width: screenSize.width * 1,
@@ -1160,91 +1340,11 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                             },
                                           )),
 /////////////////////////////////////////////画像/////////////////////////////////////////////
-                                      Center(
-                                          child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            padding: EdgeInsets.only(top: 20),
-                                            width: MediaQuery.of(context)
-                                                .size
-                                                .width,
-                                            child: Text('👇画像を選択してください。※最大4枚'),
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              ElevatedButton(
-                                                  onPressed: _getImage,
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    primary: Colors.brown,
-                                                  ),
-                                                  child: Row(children: const [
-                                                    Icon(Icons.image),
-                                                    Text("写真を選ぶ")
-                                                  ])),
-                                              GestureDetector(
-                                                child: Row(
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 20,
-                                                    ),
-                                                    Icon(
-                                                      Icons.clear,
-                                                      color: Colors.brown,
-                                                    ),
-                                                    Text(
-                                                      '選択をクリア',
-                                                      style: TextStyle(
-                                                          color: Colors.brown),
-                                                    )
-                                                  ],
-                                                ),
-                                                onTap: () {
-                                                  setState(() {
-                                                    imageFileList = [];
-                                                  });
-                                                },
-                                              )
-                                            ],
-                                          ),
-                                          imageFileList.length == 0
-                                              ? const Text('画像が選択されていません')
-                                              : Wrap(
-                                                  children: [
-                                                    for (var image
-                                                        in imageFileList)
-                                                      SizedBox(
-                                                        width:
-                                                            screenSize.width *
-                                                                0.4,
-                                                        child: Image.file(
-                                                          File(image!.path),
-                                                          width:
-                                                              screenSize.width *
-                                                                  0.4,
-                                                          height: 200,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      )
-                                                  ],
-                                                ),
-                                          const SizedBox(
-                                            height: 20,
-                                          ),
-                                        ],
-                                      )),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
                                     ],
                                   ),
-                                  Text('経度' +
-                                      Lat.toString() +
-                                      '緯度' +
-                                      Long.toString()),
                                   ElevatedButton(
                                     onPressed: () async {
                                       SubmitFunc();

@@ -24,7 +24,6 @@
     </queries>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="android.permission.INTERNET" />
    <application
         android:label="preblo"
@@ -60,5 +59,8 @@
            android:name="com.google.android.geo.API_KEY"
            android:value="AIzaSyBBappueWYpr0D7dtVC-INbM_9M2ifRQtY"
            />
+       <meta-data
+           android:name="com.google.android.gms.ads.APPLICATION_ID"
+           android:value="ca-app-pub-3022328775537673~9427166713"/>
     </application>
 </manifest>

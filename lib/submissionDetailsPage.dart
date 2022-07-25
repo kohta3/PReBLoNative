@@ -7,7 +7,8 @@ import 'package:preblo/tabPage/secondTabScreen.dart';
 import 'main.dart';
 
 class submissionDetailsPage extends StatefulWidget {
-  const submissionDetailsPage({Key? key, required this.infoId,required this.userId})
+  const submissionDetailsPage(
+      {Key? key, required this.infoId, required this.userId})
       : super(key: key);
   final infoId;
   final userId;
@@ -93,12 +94,16 @@ class _submissionDetailsPageState extends State<submissionDetailsPage>
       infoList = infoResults;
       loading = false;
       users = User;
-      countLike = Likes[0][1];
+      try{
+        countLike = Likes[0][1];
+      }catch(e){
+        countLike = 0;
+      }
+      print('ここまで');
       for (var user in users)
         infoList[0][37] == user[0] ? userName = user[1] : SizedBox.shrink();
-      for(var userLike in userLikes)
-        authUserLikes.add(userLike[0]);
-      print(authUserLikes);
+      for (var userLike in userLikes) authUserLikes.add(userLike[0]);
+      print('authUserLikes');
     });
   }
 
@@ -141,40 +146,40 @@ class _submissionDetailsPageState extends State<submissionDetailsPage>
               controller: _tabController,
               children: <Widget>[
                 firstTabScreen(
-                    PlaceName: infoList[0][2],
-                    telephoneNumber: infoList[0][27],
-                    url: infoList[0][5],
-                    infoDetail: infoList[0][7],
-                    images: [
-                      infoList[0][10],
-                      infoList[0][34],
-                      infoList[0][35],
-                      infoList[0][36]
-                    ],
-                    recommend: infoList[0][38],
-                    infoId: infoList[0][0],
-                    open1: infoList[0][30],
-                    close1: infoList[0][32],
-                    open2: infoList[0][31],
-                    close2: infoList[0][33],
-                    sunday: false,
-                    monday: false,
-                    tuesday: false,
-                    wednesday: false,
-                    thursday: false,
-                    friday: false,
-                    saturday: false,
-                    carPort: infoList[0][11],
-                    bicycleParking: infoList[0][12],
-                    pref: infoList[0][3],
-                    city: infoList[0][4],
-                    doNotKnow: infoList[0][24],
-                    secondHour: infoList[0][25],
-                    vacation: infoList[0][26],
-                    UserName: userName,
-                    CountLike: countLike,
-                    AuthUserLikes:authUserLikes,
-                    AuthUserId: widget.userId,
+                  PlaceName: infoList[0][2],
+                  telephoneNumber: infoList[0][27],
+                  url: infoList[0][5],
+                  infoDetail: infoList[0][7],
+                  images: [
+                    infoList[0][10],
+                    infoList[0][34],
+                    infoList[0][35],
+                    infoList[0][36]
+                  ],
+                  recommend: infoList[0][38],
+                  infoId: infoList[0][0],
+                  open1: infoList[0][30],
+                  close1: infoList[0][32],
+                  open2: infoList[0][31],
+                  close2: infoList[0][33],
+                  sunday: false,
+                  monday: false,
+                  tuesday: false,
+                  wednesday: false,
+                  thursday: false,
+                  friday: false,
+                  saturday: false,
+                  carPort: infoList[0][11],
+                  bicycleParking: infoList[0][12],
+                  pref: infoList[0][3],
+                  city: infoList[0][4],
+                  doNotKnow: infoList[0][24],
+                  secondHour: infoList[0][25],
+                  vacation: infoList[0][26],
+                  UserName: userName,
+                  CountLike: countLike,
+                  AuthUserLikes: authUserLikes,
+                  AuthUserId: widget.userId,
                 ),
                 secondTabScreen(
                     Latitude: infoList[0][28],

@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart' as latLng;
 import 'package:geolocator/geolocator.dart';
 import 'package:postgres/postgres.dart';
 import 'package:preblo/submissionDetailsPage.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../NoAuth.dart';
 import '../main.dart';
@@ -155,7 +156,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> with RouteAware {
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
-
+    final controller = AutoScrollController();
     return Scaffold(
         body: loading
             ? Center(
@@ -196,24 +197,33 @@ class _FavoriteScreenState extends State<FavoriteScreen> with RouteAware {
                                         retinaMode: true,
                                       ),
                                       MarkerLayerOptions(markers: [
-                                        for (var info in getDetailInfo)
+                                        for (int i = 0 ; i < getDetailInfo.length;i++)
                                           Marker(
-                                            anchorPos: AnchorPos.align(
-                                                AnchorAlign.right),
-                                            width: screenSize.width * 0.6,
-                                            point: latLng.LatLng(
-                                                info[28], info[29]),
-                                            builder: (ctx) => Row(children: [
-                                              Icon(
-                                                Icons.place,
-                                                color: Colors.redAccent,
-                                              ),
-                                              Visibility(
-                                                visible: _visible,
-                                                child: Text(info[2]),
-                                              )
-                                            ]),
-                                          ),
+                                              anchorPos: AnchorPos.align(
+                                                  AnchorAlign.right),
+                                              width: screenSize.width * 0.6,
+                                              point: latLng.LatLng(
+                                                  getDetailInfo[i][28], getDetailInfo[i][29]),
+                                              builder: (ctx) => GestureDetector(
+                                                    onTap: () {
+                                                      controller.scrollToIndex(
+                                                        i,
+                                                        preferPosition:
+                                                            AutoScrollPosition
+                                                                .begin,
+                                                      );
+                                                    },
+                                                    child: Row(children: [
+                                                      Icon(
+                                                        Icons.place,
+                                                        color: Colors.redAccent,
+                                                      ),
+                                                      Visibility(
+                                                        visible: _visible,
+                                                        child: Text(getDetailInfo[i][2]),
+                                                      )
+                                                    ]),
+                                                  )),
                                       ])
                                     ]),
                               ),
@@ -229,10 +239,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> with RouteAware {
                                             });
                                           },
                                           child: Text('表示切替'),
-                                        style: ElevatedButton.styleFrom(
-                                          primary: Color(12),
-                                        )
-                                      ),
+                                          style: ElevatedButton.styleFrom(
+                                            primary: Color(12),
+                                          )),
                                       SizedBox(
                                         width: 10,
                                       ),
@@ -252,47 +261,55 @@ class _FavoriteScreenState extends State<FavoriteScreen> with RouteAware {
                                       child: CircularProgressIndicator(),
                                     )
                                   : ListView.builder(
+                                      controller: controller,
                                       itemCount: getDetailInfo.length,
                                       itemBuilder:
                                           (BuildContext context, int index) {
-                                        return GestureDetector(
-                                          child: Row(
-                                            children: [
-                                              CachedNetworkImage(
-                                                imageUrl: getDetailInfo[index]
-                                                    [10],
-                                                width: screenSize.width * 0.4,
-                                                height: 80,
-                                                fit: BoxFit.cover,
-                                              ),
-                                              SizedBox(
-                                                width: 10,
-                                              ),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(getDetailInfo[index][3] +
-                                                      '>' +
-                                                      getDetailInfo[index][4]),
-                                                  Text(getDetailInfo[index][2]),
-                                                ],
-                                              )
-                                            ],
+                                        return AutoScrollTag(
+                                          key: ValueKey(index),
+                                          controller: controller,
+                                          index: index,
+                                          child: GestureDetector(
+                                            child: Row(
+                                              children: [
+                                                CachedNetworkImage(
+                                                  imageUrl: getDetailInfo[index]
+                                                      [10],
+                                                  width: screenSize.width * 0.4,
+                                                  height: 80,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(getDetailInfo[index]
+                                                            [3] +
+                                                        '>' +
+                                                        getDetailInfo[index]
+                                                            [4]),
+                                                    Text(getDetailInfo[index]
+                                                        [2]),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        submissionDetailsPage(
+                                                          infoId: getDetailInfo[
+                                                              index][0],
+                                                          userId: userId,
+                                                        )),
+                                              );
+                                            },
                                           ),
-                                          onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      submissionDetailsPage(
-                                                        infoId:
-                                                            getDetailInfo[index]
-                                                                [0],
-                                                        userId: userId,
-                                                      )),
-                                            );
-                                          },
                                         );
                                       },
                                     )),
