@@ -36,6 +36,7 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
   bool ParkingCar = false;
   bool ParkingBike = false;
   bool notVerifyEmail = false;
+  bool waitTime = true;
   String comment = '';
   String ButtonHide = 'わからない';
   String dialogText = '';
@@ -71,43 +72,6 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
 
   final picker = ImagePicker();
   List<XFile?> imageFileList = [];
-
-
-  SubmitFunc() {
-    print(selectedLargeGenre);
-    print(categorise[selectedSmallGenre]);
-    print(selectedComment);
-    print(selectedPref);
-    print(selectedCity);
-    print(selectedSmall);
-    print(_timeStart.format(context));
-    print(_timeClose.format(context));
-    print(_timeStart2.format(context));
-    print(_timeClose2.format(context));
-    print(doNotKnow);
-    print(isChecked);
-    print(ParkingBike);
-    print(ParkingCar);
-    print(selectedNumber);
-    print(holiday);
-    print(dayOfTheWeeksBools[dayOfTheWeeks[0]]);
-    print(dayOfTheWeeksBools[dayOfTheWeeks[1]]);
-    print(dayOfTheWeeksBools[dayOfTheWeeks[2]]);
-    print(dayOfTheWeeksBools[dayOfTheWeeks[3]]);
-    print(dayOfTheWeeksBools[dayOfTheWeeks[4]]);
-    print(dayOfTheWeeksBools[dayOfTheWeeks[5]]);
-    print(dayOfTheWeeksBools[dayOfTheWeeks[6]]);
-    print(selectedReview);
-    print(Lat);
-    print(Long);
-    print(selectedUrl);
-    print(selectedAboutDetail);
-    print(selectedTitleName);
-    print(image1);
-    print(image2);
-    print(image3);
-    print(image4);
-  }
 
   TimeOfDay _timeStart = TimeOfDay(hour: 0, minute: 00);
   TimeOfDay _timeClose = TimeOfDay(hour: 0, minute: 00);
@@ -319,7 +283,6 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
     }
   }
 
-
   void _selectTime1() async {
     final TimeOfDay? newTime = await showTimePicker(
       context: context,
@@ -510,7 +473,7 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
     await connection.open();
     await connection.transaction((ctx) async {
       await ctx.query(
-          "INSERT INTO information (comment,tittle,pref,city,url,about,image,parkingcar,parkingbicycles,category_id,created_at,monday,tuesday,wednesday,thursday,friday,saturday,sunday,donnotknow,secondhour,vacation,number,lat,long,opne1,opne2,close1,close2,image2,image3,image4,user_id,review,user_name) VALUES ('${selectedComment}','${selectedTitleName}','${selectedPref}','${selectedCity}','${selectedUrl}','${selectedAboutDetail}','${image1}','${ParkingCar}','${ParkingBike}','${categorise[selectedSmallGenre]}',current_timestamp,'${dayOfTheWeeksBools[dayOfTheWeeks[0]]}','${dayOfTheWeeksBools[dayOfTheWeeks[1]]}','${dayOfTheWeeksBools[dayOfTheWeeks[2]]}','${dayOfTheWeeksBools[dayOfTheWeeks[3]]}','${dayOfTheWeeksBools[dayOfTheWeeks[4]]}','${dayOfTheWeeksBools[dayOfTheWeeks[5]]}','${dayOfTheWeeksBools[dayOfTheWeeks[6]]}','${doNotKnow}','${isChecked}','${holiday}','${selectedNumber}','${Long}','${Lat}','${_timeStart.format(context)}','${_timeClose.format(context)}','${_timeStart2.format(context)}','${_timeClose2.format(context)}','${image2}','${image3}','${image4}','${userId}','${selectedReview}','こうた')");
+          "INSERT INTO information (comment,tittle,pref,city,url,about,image,parkingcar,parkingbicycles,category_id,created_at,monday,tuesday,wednesday,thursday,friday,saturday,sunday,donnotknow,secondhour,vacation,number,lat,long,opne1,opne2,close1,close2,image2,image3,image4,user_id,review,user_name) VALUES ('${selectedComment}','${selectedTitleName}','${selectedPref}','${selectedCity}','${selectedUrl}','${selectedAboutDetail}','${image1}','${ParkingCar}','${ParkingBike}','${categorise[selectedSmallGenre]}',current_timestamp,'${dayOfTheWeeksBools[dayOfTheWeeks[0]]}','${dayOfTheWeeksBools[dayOfTheWeeks[1]]}','${dayOfTheWeeksBools[dayOfTheWeeks[2]]}','${dayOfTheWeeksBools[dayOfTheWeeks[3]]}','${dayOfTheWeeksBools[dayOfTheWeeks[4]]}','${dayOfTheWeeksBools[dayOfTheWeeks[5]]}','${dayOfTheWeeksBools[dayOfTheWeeks[6]]}','${doNotKnow}','${isChecked}','${holiday}','${selectedNumber}','${Long}','${Lat}','${_timeStart.format(context)}','${_timeStart2.format(context)}','${_timeClose.format(context)}','${_timeClose2.format(context)}','${image2}','${image3}','${image4}','${userId}','${selectedReview}','こうた')");
     });
     await connection.close();
   }
@@ -583,7 +546,6 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -672,30 +634,32 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                                 Icon(Icons.image),
                                                 Text("写真を選ぶ")
                                               ])),
-                                          imageFileList.length != 0?
-                                          GestureDetector(
-                                            child: Row(
-                                              children: [
-                                                SizedBox(
-                                                  width: 20,
-                                                ),
-                                                Icon(
-                                                  Icons.clear,
-                                                  color: Colors.brown,
-                                                ),
-                                                Text(
-                                                  '選択をクリア',
-                                                  style: TextStyle(
-                                                      color: Colors.brown),
+                                          imageFileList.length != 0
+                                              ? GestureDetector(
+                                                  child: Row(
+                                                    children: [
+                                                      SizedBox(
+                                                        width: 20,
+                                                      ),
+                                                      Icon(
+                                                        Icons.clear,
+                                                        color: Colors.brown,
+                                                      ),
+                                                      Text(
+                                                        '選択をクリア',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.brown),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  onTap: () {
+                                                    setState(() {
+                                                      imageFileList = [];
+                                                    });
+                                                  },
                                                 )
-                                              ],
-                                            ),
-                                            onTap: () {
-                                              setState(() {
-                                                imageFileList = [];
-                                              });
-                                            },
-                                          ):SizedBox.shrink()
+                                              : SizedBox.shrink()
                                         ],
                                       ),
                                       imageFileList.length == 0
@@ -1345,21 +1309,30 @@ class _DirectionScreenState extends State<DirectionScreen> with RouteAware {
                                       ),
                                     ],
                                   ),
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      SubmitFunc();
-                                      print(today);
-                                      await inputCheck();
-                                      await SubmitFunc();
-                                    },
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text('投稿'),
-                                          Icon(Icons.whatshot)
-                                        ]),
-                                  ),
+                                  waitTime
+                                      ? ElevatedButton(
+                                          onPressed: () async {
+                                            setState(() {
+                                              waitTime = false;
+                                            });
+                                            await inputCheck();
+                                            await Future.delayed(
+                                                Duration(seconds: 5));
+                                            setState(() {
+                                              waitTime = true;
+                                            });
+                                          },
+                                          child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text('投稿'),
+                                                Icon(Icons.whatshot)
+                                              ]),
+                                        )
+                                      : Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
                                 ],
                               ),
                             ],

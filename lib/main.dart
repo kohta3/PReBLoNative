@@ -19,11 +19,8 @@ Future<void> main() async {
 class MyApp extends StatelessWidget with RouteAware {
   const MyApp({Key? key}) : super(key: key);
 
-
   @override
   Widget build(BuildContext context) {
-
-
     return MaterialApp(
       title: 'PReBLo',
       navigatorObservers: <NavigatorObserver>[routeObserver],

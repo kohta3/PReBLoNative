@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app_review/app_review.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,7 @@ class _TopPageState extends State<TopPage> with RouteAware {
   bool loadNew = true;
   bool isLikedBool = false;
   bool ads = true;
+  bool twoWait = true;
 
   @override
   void didChangeDependencies() {
@@ -64,12 +66,12 @@ class _TopPageState extends State<TopPage> with RouteAware {
   }
 
   CacheManager get _defaultCacheManager => CacheManager(
-    Config(
-      'CachedImageKey',
-      stalePeriod: const Duration(days: 1),
-      maxNrOfCacheObjects: 100,
-    ),
-  );
+        Config(
+          'CachedImageKey',
+          stalePeriod: const Duration(days: 1),
+          maxNrOfCacheObjects: 100,
+        ),
+      );
 
   Future<void> databasePullData() async {
     var connection = PostgreSQLConnection(
@@ -171,24 +173,45 @@ class _TopPageState extends State<TopPage> with RouteAware {
             "69a6cbf80ab0316a8db78e428f87f70ebe8ffc5728375ed30f990db4db0caf63",
         useSSL: true);
     await connection.open();
-    if (!isLikedBool) {
-      await connection.transaction((ctx) async {
-        await ctx.query(
-            "INSERT INTO likes (information_id,user_id,created_at,updated_at) VALUES ('${informationId}','${userId}',current_timestamp,current_timestamp)"); //ここでライクが押された時の処理をする
+    if (twoWait) {
+      print(twoWait);
+      setState(() {
+        twoWait = false;
       });
-    } else {
-      await connection.transaction((ctx) async {
-        await ctx.query(
-            "DELETE FROM likes WHERE information_id='${informationId}' AND user_id='${userId}'"); //すでにlikeの場合
+      if (!isLikedBool) {
+        await connection.transaction((ctx) async {
+          await ctx.query(
+              "INSERT INTO likes (information_id,user_id,created_at,updated_at) VALUES ('${informationId}','${userId}',current_timestamp,current_timestamp)"); //ここでライクが押された時の処理をする
+        });
+        print('いいねしました');
+      } else {
+        await connection.transaction((ctx) async {
+          await ctx.query(
+              "DELETE FROM likes WHERE information_id='${informationId}' AND user_id='${userId}'"); //すでにlikeの場合
+        });
+        print('いいねを取り消しました');
+      }
+      List<List<dynamic>> userLikes = await connection
+          .query("SELECT information_id FROM likes WHERE user_id='${userId}'");
+      setState(() {
+        authUserLikes = [];
       });
+      for (var userLike in userLikes) {
+        authUserLikes.add(userLike[0]);
+      }
     }
     await connection.close();
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        twoWait = true;
+      });
+    });
   }
 
   final BannerAd myBanner = BannerAd(
     adUnitId: Platform.isAndroid
-        ? 'ca-app-pub-3022328775537673/7730941662'
-        : 'ca-app-pub-3022328775537673/9758339202',
+        ? 'ca-app-pub-3022328775537673/8822593683'
+        : 'ca-app-pub-3022328775537673/3553406392',
     size: AdSize.banner,
     request: AdRequest(),
     listener: BannerAdListener(),
@@ -211,6 +234,11 @@ class _TopPageState extends State<TopPage> with RouteAware {
     onAdImpression: (Ad ad) => print('Ad impression.'),
   );
 
+  void _requestReview() {
+    AppReview.requestReview.then((onValue) {
+      print(onValue);
+    });
+  }
 
   void didPush() async {
     await myBanner.load();
@@ -220,10 +248,8 @@ class _TopPageState extends State<TopPage> with RouteAware {
     await getAuth();
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     final AdWidget adWidget = AdWidget(ad: myBanner);
     var screenSize = MediaQuery.of(context).size;
     return Scaffold(
@@ -250,7 +276,7 @@ class _TopPageState extends State<TopPage> with RouteAware {
           ),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             SizedBox(
-              width: screenSize.width*0.4,
+              width: screenSize.width * 0.4,
               height: 100,
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.dynamic_feed),
@@ -287,7 +313,7 @@ class _TopPageState extends State<TopPage> with RouteAware {
               ),
             ),
             SizedBox(
-              width: screenSize.width*0.4,
+              width: screenSize.width * 0.4,
               height: 100,
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.maps_home_work),
@@ -324,9 +350,132 @@ class _TopPageState extends State<TopPage> with RouteAware {
               ),
             ),
           ]),
-          //人気の投稿/////////////////////////////////////////////////////////
+          //最新の投稿/////////////////////////////////////////////////////////
           Container(
-            padding: EdgeInsets.only(top: 20, left: 10),
+            padding: EdgeInsets.all(10),
+            child: Text(
+              '新しい投稿',
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+          ),
+          loadNew
+              ? Container(
+                  height: 360,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ))
+              : Container(
+                  padding: EdgeInsets.all(10),
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    children: [
+                      for (int i = 0; i < 9; i++)
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => submissionDetailsPage(
+                                        infoId: newInput[i][0],
+                                        userId: userId,
+                                      )),
+                            );
+                          },
+                          child: Container(
+                              padding: EdgeInsets.all(1),
+                              width: screenSize.width * 0.3,
+                              child: Stack(
+                                alignment: Alignment.bottomLeft,
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.topRight,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: CachedNetworkImage(
+                                          cacheManager: _defaultCacheManager,
+                                          imageUrl: newInput[i][10],
+                                          width: screenSize.width * 0.3,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                          errorWidget: (context, url, error) =>
+                                              Icon(Icons.error),
+                                          filterQuality: FilterQuality.low,
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          for (var user in Users)
+                                            user[0] == newInput[i][37]
+                                                ? Row(children: [
+                                                    ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                      child: user[9] == null
+                                                          ? Icon(
+                                                              Icons.face,
+                                                              color:
+                                                                  Colors.blue,
+                                                            )
+                                                          : CachedNetworkImage(
+                                                              imageUrl: user[9],
+                                                              width: 25,
+                                                              height: 25,
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                    ),
+                                                    Text(
+                                                      user[1],
+                                                      style: TextStyle(
+                                                          fontSize: 10,
+                                                          color: Colors.white,
+                                                          backgroundColor:
+                                                              Colors.grey
+                                                                  .withOpacity(
+                                                                      0.5)),
+                                                    )
+                                                  ])
+                                                : SizedBox.shrink(),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  uid != null
+                                      ? Container(
+                                          child: LikeButton(
+                                            circleColor: CircleColor(
+                                                start: Colors.white,
+                                                end: Colors.white),
+                                            padding: EdgeInsets.all(3),
+                                            likeCount:
+                                                sortFamousInput[newInput[i][0]],
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            isLiked: isLikedBool = authUserLikes
+                                                .contains(newInput[i][0]),
+                                            onTap: (bool isLiked) async {
+                                              requestLikes(newInput[i][0]);
+                                              isLikedBool = isLiked;
+                                              return !isLiked;
+                                            },
+                                          ),
+                                        )
+                                      : SizedBox.shrink(),
+                                ],
+                              )),
+                        )
+                    ],
+                  )),
+//最新の投稿/////////////////////////////////////////////////////////
+//人気の投稿/////////////////////////////////////////////////////////
+          Container(
+            padding: EdgeInsets.only(top: 5, left: 10),
             alignment: Alignment.topLeft,
             child: Text(
               '人気な投稿',
@@ -359,23 +508,36 @@ class _TopPageState extends State<TopPage> with RouteAware {
                                   SizedBox(
                                     width: 7,
                                   ),
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: Image(
-                                      image: NetworkImage(
-                                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7vC1coMEndWvlJ1uutJSClJLttqq9j2h3VQ&usqp=CAU',
-                                      ),
-                                      width: 25,
-                                      height: 25,
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
                                   for (var user in Users)
                                     user[0] == famousInput[i][37]
-                                        ? Text(user[1])
+                                        ? Container(
+                                            padding: EdgeInsets.only(top: 3),
+                                            child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    child: user[9] == null
+                                                        ? Icon(
+                                                            Icons.face_outlined)
+                                                        : CachedNetworkImage(
+                                                            imageUrl: user[9],
+                                                            width: 30,
+                                                            height: 30,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                  ),
+                                                  Text(user[1]),
+                                                  SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Text(famousInput[i][2])
+                                                ]),
+                                          )
                                         : SizedBox.shrink(),
-                                  SizedBox(width: 10),
-                                  Text(famousInput[i][2])
                                 ]),
                               ),
                               Stack(alignment: Alignment.topCenter, children: [
@@ -458,122 +620,6 @@ class _TopPageState extends State<TopPage> with RouteAware {
                   ),
                 ),
 //人気の投稿/////////////////////////////////////////////////////////
-//最新の投稿/////////////////////////////////////////////////////////
-          Container(
-            padding: EdgeInsets.all(10),
-            child: Text(
-              '新しい投稿',
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-          ),
-          loadNew
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
-              : Container(
-                  padding: EdgeInsets.all(10),
-                  child: Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    children: [
-                      for (int i = 0; i < 9; i++)
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => submissionDetailsPage(
-                                        infoId: newInput[i][0],
-                                        userId: userId,
-                                      )),
-                            );
-                          },
-                          child: Container(
-                              padding: EdgeInsets.all(1),
-                              width: screenSize.width * 0.3,
-                              child: Stack(
-                                alignment: Alignment.bottomLeft,
-                                children: [
-                                  Stack(
-                                    alignment: Alignment.topRight,
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(20),
-                                        child: CachedNetworkImage(
-                                          cacheManager: _defaultCacheManager,
-                                          imageUrl: newInput[i][10],
-                                          width: screenSize.width * 0.3,
-                                          height: 120,
-                                          fit: BoxFit.cover,
-                                          errorWidget: (context, url, error) =>
-                                              Icon(Icons.error),
-                                          filterQuality: FilterQuality.low,
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(100),
-                                            child: CachedNetworkImage(
-                                              imageUrl:
-                                                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7vC1coMEndWvlJ1uutJSClJLttqq9j2h3VQ&usqp=CAU',
-                                              width: 20,
-                                              height: 20,
-                                              fit: BoxFit.fill,
-                                              errorWidget:
-                                                  (context, url, error) =>
-                                                      Icon(Icons.error),
-                                              filterQuality: FilterQuality.low,
-                                            ),
-                                          ),
-                                          for (var user in Users)
-                                            user[0] == newInput[i][37]
-                                                ? Text(
-                                                    user[1],
-                                                    style: TextStyle(
-                                                        fontSize: 10,
-                                                        color: Colors.white,
-                                                        backgroundColor: Colors
-                                                            .grey
-                                                            .withOpacity(0.5)),
-                                                  )
-                                                : SizedBox.shrink(),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                  uid != null
-                                      ? Container(
-                                          child: LikeButton(
-                                            circleColor: CircleColor(
-                                                start: Colors.white,
-                                                end: Colors.white),
-                                            padding: EdgeInsets.all(3),
-                                            likeCount:
-                                                sortFamousInput[newInput[i][0]],
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            isLiked: isLikedBool = authUserLikes
-                                                .contains(newInput[i][0]),
-                                            onTap: (bool isLiked) async {
-                                              requestLikes(newInput[i][0]);
-                                              isLikedBool = isLiked;
-                                              return !isLiked;
-                                            },
-                                          ),
-                                        )
-                                      : SizedBox.shrink(),
-                                ],
-                              )),
-                        )
-                    ],
-                  ))
-//最新の投稿/////////////////////////////////////////////////////////
         ],
       ),
     );

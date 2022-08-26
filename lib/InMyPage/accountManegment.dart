@@ -1,13 +1,17 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:postgres/postgres.dart';
+import 'dart:io' as io;
 import 'package:preblo/provider/AdmodOverray.dart';
 
+import '../StartPage.dart';
 import '../main.dart';
 
 class AccountManagePage extends StatefulWidget {
@@ -23,6 +27,10 @@ class _AccountManagePageState extends State<AccountManagePage> with RouteAware {
   String? userName;
   String? uid;
   String? authUserName;
+  String? images;
+  String? imagesUrl;
+  String? SaveImageUrl;
+  bool saveImageLoading = false;
   int? userId;
   final picker = ImagePicker();
   final _formKey = GlobalKey<FormState>();
@@ -40,12 +48,11 @@ class _AccountManagePageState extends State<AccountManagePage> with RouteAware {
     super.dispose();
   }
 
-  updateUser(name) async {
+  updateUser(name, url) async {
     FirebaseAuth.instance.authStateChanges().listen((User? user) async {
       if (user != null) {
         await user.updateDisplayName(name);
-        await user
-            .updatePhotoURL("https://example.com/jane-q-user/profile.jpg");
+        await user.updatePhotoURL(url);
       }
     });
   }
@@ -56,6 +63,8 @@ class _AccountManagePageState extends State<AccountManagePage> with RouteAware {
         setState(() {
           userName = user.displayName;
           uid = user.uid;
+          images = user.photoURL;
+          imagesUrl = user.uid.substring(20);
         });
         getUserId();
       } else {
@@ -63,6 +72,38 @@ class _AccountManagePageState extends State<AccountManagePage> with RouteAware {
       }
       ;
     });
+  }
+
+  Future _upLoadToPath() async {
+    // ignore: deprecated_member_use
+    final pickedFile =
+        await picker.getImage(source: ImageSource.gallery, imageQuality: 30);
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
+
+  Future saveFileToFirebase() async {
+    if (_image != null) {
+      FirebaseStorage storage = FirebaseStorage.instance;
+      try {
+        await storage.ref("account/${imagesUrl}.png").putFile(_image!);
+        SaveImageUrl = await storage
+            .ref()
+            .child('account')
+            .child('${imagesUrl}.png')
+            .getDownloadURL();
+        setState(() {
+          saveImageLoading = false;
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
   }
 
   Future<void> getUserId() async {
@@ -93,7 +134,7 @@ class _AccountManagePageState extends State<AccountManagePage> with RouteAware {
     await connection.open();
     await connection.transaction((ctx) async {
       await ctx
-          .query("UPDATE users SET name='${userName}' WHERE id='${userId}'");
+          .query("UPDATE users SET name='${userName}',account_image='${SaveImageUrl}' WHERE id='${userId}'");
     });
     await connection.close();
   }
@@ -109,20 +150,6 @@ class _AccountManagePageState extends State<AccountManagePage> with RouteAware {
 
   void didPush() async {
     await getUser();
-  }
-
-
-  Future _getImage() async {
-    // ignore: deprecated_member_use
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
-
-    setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
-    });
   }
 
   @override
@@ -147,16 +174,27 @@ class _AccountManagePageState extends State<AccountManagePage> with RouteAware {
               children: [
                 Center(
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(150),
-                    child: Image(
-                      image: NetworkImage(
-                        AccountImage,
-                      ),
-                      width: 300,
-                      height: 300,
-                      fit: BoxFit.fill,
-                    ),
-                  ),
+                      borderRadius: BorderRadius.circular(150),
+                      child: _image != null
+                          ? Image.file(
+                              File(_image!.path),
+                              width: 300,
+                              height: 300,
+                              fit: BoxFit.cover,
+                            )
+                          : images == null
+                              ? Image(
+                                  image: NetworkImage(AccountImage),
+                                  width: 300,
+                                  height: 300,
+                                  fit: BoxFit.cover,
+                                )
+                              : CachedNetworkImage(
+                                  imageUrl: '${images}',
+                                  width: 300,
+                                  height: 300,
+                                  fit: BoxFit.cover,
+                                )),
                 ),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(150),
@@ -180,7 +218,7 @@ class _AccountManagePageState extends State<AccountManagePage> with RouteAware {
               ],
             ),
             onTap: () {
-              _getImage();
+              _upLoadToPath();
             },
           ),
           Row(children: [
@@ -209,14 +247,37 @@ class _AccountManagePageState extends State<AccountManagePage> with RouteAware {
               },
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(100),
-            child: ElevatedButton(
-                onPressed: () {
-                  updateUser(userName);
-                  RenameUser();
-                },
-                child: Text('変更を保存')),
+          Stack(
+            children: [
+              Center(
+                  child: SizedBox(
+                child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(),
+                    onPressed: () async {
+                      setState(() {
+                        saveImageLoading = true;
+                      });
+                      await saveFileToFirebase();
+                      await updateUser(userName, SaveImageUrl);
+                      await RenameUser();
+                      setState(() {
+                        saveImageLoading = false;
+                      });
+                      await Navigator.push(context,
+                          CupertinoPageRoute(builder: (context) {
+                        return const StartPage();
+                      }));
+                    },
+                    child: Text('変更を保存')),
+              )),
+              saveImageLoading
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.blueGrey,
+                      ),
+                    )
+                  : SizedBox.shrink()
+            ],
           )
         ],
       ),

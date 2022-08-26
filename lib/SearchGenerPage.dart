@@ -4,6 +4,7 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'Component/AppBar.dart';
 import 'DetailPage.dart';
 
+
 class SearchGenrePage extends StatefulWidget {
   const SearchGenrePage({Key? key,required this.userId}) : super(key: key);
   final userId;

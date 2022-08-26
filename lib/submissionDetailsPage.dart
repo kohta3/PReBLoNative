@@ -36,6 +36,7 @@ class _submissionDetailsPageState extends State<submissionDetailsPage>
   String? pref;
   String? city;
   String? userName;
+  String? account_url;
   int recommend = 5;
   int userId = 1;
   int? countLike;
@@ -102,6 +103,8 @@ class _submissionDetailsPageState extends State<submissionDetailsPage>
       print('ここまで');
       for (var user in users)
         infoList[0][37] == user[0] ? userName = user[1] : SizedBox.shrink();
+      for (var user in users)
+        infoList[0][37] == user[0] ? account_url = user[9] : SizedBox.shrink();
       for (var userLike in userLikes) authUserLikes.add(userLike[0]);
       print('authUserLikes');
     });
@@ -180,6 +183,7 @@ class _submissionDetailsPageState extends State<submissionDetailsPage>
                   CountLike: countLike,
                   AuthUserLikes: authUserLikes,
                   AuthUserId: widget.userId,
+                  accountImage: account_url,
                 ),
                 secondTabScreen(
                     Latitude: infoList[0][28],

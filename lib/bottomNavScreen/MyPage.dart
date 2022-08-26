@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:preblo/InMyPage/StatusPage.dart';
 import 'package:preblo/InMyPage/pastPosts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -71,6 +72,26 @@ class _MyPageState extends State<MyPage> {
                   children: [
                     Column(
                       children: [
+                        Container(
+                            alignment: Alignment.topLeft,
+                            width: screenSize.width * 1,
+                            decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(width: 1, color: Colors.grey),
+                                )),
+                            child: TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            StatePage(uID: uid)),
+                                  );
+                                },
+                                child: Text(
+                                  "ステータス",
+                                  style: TextStyle(fontSize: 20),
+                                ))),
                         Container(
                             alignment: Alignment.topLeft,
                             width: screenSize.width * 1,

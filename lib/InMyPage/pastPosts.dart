@@ -93,27 +93,6 @@ class _passPostsScreenState extends State<passPostsScreen> with RouteAware {
     'https://pbs.twimg.com/media/FURkhtlVEAAbXEP?format=jpg&name=large',
   ];
 
-  List<DateTime> date = [
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 11),
-    DateTime(2022, 10, 12),
-    DateTime(2022, 10, 12),
-  ];
-
   void didPush() async {
     await initGetUserId();
     oldAdd();

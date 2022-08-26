@@ -1,16 +1,20 @@
 // ignore_for_file: camel_case_types, unnecessary_null_comparison
 
 import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:intl/intl.dart';
 import 'package:like_button/like_button.dart';
 import 'package:postgres/postgres.dart';
+import 'package:preblo/StartPage.dart';
 import 'package:preblo/main.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:math' as math;
+import 'package:app_review/app_review.dart';
 
 class firstTabScreen extends StatefulWidget {
   const firstTabScreen(
@@ -43,7 +47,8 @@ class firstTabScreen extends StatefulWidget {
       required this.UserName,
       required this.CountLike,
       required this.AuthUserLikes,
-      required this.AuthUserId})
+      required this.AuthUserId,
+      required this.accountImage})
       : super(key: key);
   final PlaceName;
   final telephoneNumber;
@@ -74,27 +79,22 @@ class firstTabScreen extends StatefulWidget {
   final CountLike;
   final AuthUserLikes;
   final AuthUserId;
+  final accountImage;
 
   @override
   State<firstTabScreen> createState() => _firstTabScreenState();
 }
 
 class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
+  final GlobalKey shareKey = GlobalKey();
   bool isLikedBool = false;
   bool ads = true;
+  bool sendReport = false;
+  bool menu = false;
+  bool block = false;
   int star = 3;
+  int value = math.Random().nextInt(30);
   var urlLink = 'https://www.preblo.site/';
-  String? discription =
-      "バイキングは【2部制】にさせていただきます。【1部】17:45-19:15（最終入場18:15）【2部】19:30-21:00（最終入場20:00）ご予約時か前日までにお時間の連絡をお願いいたします。尚、ご連絡がない場合は【1部】でのご案内となります。";
-
-  var imageUrl = [
-    'https://pbs.twimg.com/media/FUtHmHBXoAADWF7?format=jpg&name=large',
-    'https://pbs.twimg.com/media/FUYeYK0VEAA2_UE?format=jpg&name=large',
-    'https://pbs.twimg.com/media/FURkhtlVEAAbXEP?format=jpg&name=large',
-    'https://pbs.twimg.com/media/FTS2p_SaQAEYye0?format=jpg&name=4096x4096',
-    'https://pbs.twimg.com/media/FTQPDUrUsAA2JVY?format=jpg&name=large',
-    'https://pbs.twimg.com/media/FTOKuYGVsAEhKJ9?format=jpg&name=large'
-  ];
 
   Future<void> requestLikes(informationId) async {
     var connection = PostgreSQLConnection(
@@ -116,6 +116,71 @@ class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
       });
     }
     await connection.close();
+  }
+
+  Future<void> flag() async {
+    var connection = PostgreSQLConnection(
+        "ec2-35-174-56-18.compute-1.amazonaws.com", 5432, "d7b3j5jpksdl1f",
+        username: "nidpustzmfzulk",
+        password:
+            "69a6cbf80ab0316a8db78e428f87f70ebe8ffc5728375ed30f990db4db0caf63",
+        useSSL: true);
+    await connection.open();
+    if (widget.AuthUserId != null) {
+      await connection.transaction((ctx) async {
+        await ctx.query(
+            "INSERT INTO report (information_id,created_at) VALUES ('${widget.AuthUserId}',current_timestamp)" //ここでライクが押された時の処理をする
+            );
+      });
+    } else {
+      await connection.transaction((ctx) async {
+        await ctx.query(
+            "INSERT INTO report (information_id,created_at) VALUES ('${0}','current_timestamp')" //ここでライクが押された時の処理をする
+            );
+      });
+    }
+    await connection.close();
+  }
+
+  FlagDialog() {
+    return showDialog(
+        context: context,
+        builder: (childContext) {
+          return SimpleDialog(
+              backgroundColor: Colors.blueAccent,
+              title: Text('この投稿を報告しますか?'),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20))),
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SimpleDialogOption(
+                      onPressed: () async {
+                        await flag();
+                        setState(() {
+                          sendReport = true;
+                        });
+                        Navigator.pop(childContext);
+                        Future.delayed(Duration(seconds: 2), () {
+                          Navigator.push(context,
+                              CupertinoPageRoute(builder: (context) {
+                            return const StartPage();
+                          }));
+                        });
+                      },
+                      child: Text("送信する"),
+                    ),
+                    SimpleDialogOption(
+                      onPressed: () {
+                        Navigator.pop(childContext);
+                      },
+                      child: Text("やめる"),
+                    ),
+                  ],
+                )
+              ]);
+        });
   }
 
   final BannerAd myBanner = BannerAd(
@@ -143,6 +208,13 @@ class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
     // Called when an impression occurs on the ad.
     onAdImpression: (Ad ad) => print('Ad impression.'),
   );
+
+  void _requestReview() {
+    AppReview.requestReview.then((onValue) {
+      print(onValue);
+    });
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -160,22 +232,25 @@ class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
     setState(() {
       ads = false;
     });
+    if (value == 30) {
+      _requestReview();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
     final AdWidget adWidget = AdWidget(ad: myBanner);
+
     return Scaffold(
         body: ListView(children: [
       Container(
           padding: const EdgeInsets.all(5),
-          child: Column(children: [
-            Container(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  '${widget.pref}<${widget.city}',
-                )),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              '${widget.pref}<${widget.city}',
+            ),
             Container(
                 alignment: Alignment.topLeft,
                 padding: const EdgeInsets.only(top: 10),
@@ -184,19 +259,51 @@ class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(100),
-                      child: Image(
-                        image: NetworkImage(
-                          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7vC1coMEndWvlJ1uutJSClJLttqq9j2h3VQ&usqp=CAU',
-                        ),
-                        width: 30,
-                        height: 30,
-                        fit: BoxFit.fill,
-                      ),
+                      child: widget.accountImage == null
+                          ? Icon(
+                              Icons.face_outlined,
+                              size: 30,
+                            )
+                          : CachedNetworkImage(
+                              imageUrl: '${widget.accountImage}',
+                              width: 30,
+                              height: 30,
+                              fit: BoxFit.fill,
+                            ),
                     ),
                     Text(
                       widget.UserName,
                       style: TextStyle(fontSize: 16),
-                    )
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          menu = !menu;
+                        });
+                      },
+                      child: Icon(
+                        Icons.menu_open,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    menu
+                        ? TextButton(
+                            onPressed: () {
+                              print('ブロック');
+                              setState(() {
+                                block = !block;
+                              });
+                            },
+                            child: block
+                                ? Text(
+                                    'ブロック中',
+                                    style: TextStyle(color: Colors.red),
+                                  )
+                                : Text('ブロックしますか?'))
+                        : SizedBox.shrink()
                   ],
                 )),
             Container(
@@ -228,68 +335,93 @@ class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
             ),
 //////////////////////////////////////おすすめ度//////////////////////////////////////
 //////////////////////////////////////いいね//////////////////////////////////////
-            Container(
-              child: Row(children: [
-                const Text('いいね:', style: TextStyle(color: Colors.grey)),
-                LikeButton(
-                  padding: EdgeInsets.all(3),
-                  likeCount: widget.CountLike,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  isLiked: isLikedBool =
-                      widget.AuthUserLikes.contains(widget.infoId),
-                  onTap: (bool isLiked) async {
-                    requestLikes(widget.infoId);
-                    isLikedBool = isLiked;
-                    return !isLiked;
+
+            Row(children: [
+              const Text('いいね:', style: TextStyle(color: Colors.grey)),
+              LikeButton(
+                padding: EdgeInsets.all(3),
+                likeCount: widget.CountLike,
+                mainAxisAlignment: MainAxisAlignment.end,
+                isLiked: isLikedBool =
+                    widget.AuthUserLikes.contains(widget.infoId),
+                onTap: (bool isLiked) async {
+                  requestLikes(widget.infoId);
+                  isLikedBool = isLiked;
+                  return !isLiked;
+                },
+              ),
+              IconButton(
+                  onPressed: () async {
+                    await Share.share(
+                        '${widget.pref}${widget.city}の投稿\nスポット名:${widget.PlaceName}\nandroid > https://bit.ly/3BzfZhX\n ios&web > www.preblo.site\n#旅行 #グルメ #ホテル #PReBLo ');
                   },
-                )
-              ]),
-            ),
+                  icon: Icon(Icons.share)),
+              Expanded(
+                  child: GestureDetector(
+                      onTap: () {
+                        FlagDialog();
+                      },
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [Icon(Icons.flag), Text('投稿を報告')]))),
+            ]),
+            sendReport
+                ? Text(
+                    '報告が完了しました。ありがとうございます。',
+                    style: TextStyle(fontSize: 24, color: Colors.red),
+                  )
+                : SizedBox.shrink(),
+
 //////////////////////////////////////いいね//////////////////////////////////////
 //////////////////////////////////////カルーセル//////////////////////////////////////
-            Container(
-                padding: const EdgeInsets.only(top: 10, bottom: 10),
-                child: Container(
-                  color: Colors.grey[300],
-                  child: CarouselSlider(
-                    items: [
-                      for (var image in widget.images)
-                        image != ''
-                            ? Card(
-                                child: CachedNetworkImage(
-                                  imageUrl: image,
-                                  width: 400,
-                                  height: 140,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : Card(
-                                child: Container(
-                                width: 400,
-                                height: 140,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.no_photography,
-                                    ),
-                                    Text('No data')
-                                  ],
-                                ),
-                              ))
-                    ],
-                    options: CarouselOptions(
-                      initialPage: 0,
-                      enableInfiniteScroll: true,
-                      autoPlay: false,
-                      autoPlayInterval: const Duration(seconds: 1),
-                      autoPlayAnimationDuration:
-                          const Duration(milliseconds: 800),
-                      autoPlayCurve: Curves.fastOutSlowIn,
-                      enlargeCenterPage: true,
-                    ),
-                  ),
-                )),
+
+            RepaintBoundary(
+                key: shareKey,
+                child: Card(
+                    child: Container(
+                        padding: const EdgeInsets.only(top: 10, bottom: 10),
+                        child: Container(
+                          color: Colors.grey[300],
+                          child: CarouselSlider(
+                            items: [
+                              for (var image in widget.images)
+                                image != ''
+                                    ? Card(
+                                        child: CachedNetworkImage(
+                                          imageUrl: image,
+                                          width: 400,
+                                          height: 140,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    : Card(
+                                        child: Container(
+                                        width: 400,
+                                        height: 140,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.no_photography,
+                                            ),
+                                            Text('No data')
+                                          ],
+                                        ),
+                                      ))
+                            ],
+                            options: CarouselOptions(
+                              initialPage: 0,
+                              enableInfiniteScroll: true,
+                              autoPlay: false,
+                              autoPlayInterval: const Duration(seconds: 1),
+                              autoPlayAnimationDuration:
+                                  const Duration(milliseconds: 800),
+                              autoPlayCurve: Curves.fastOutSlowIn,
+                              enlargeCenterPage: true,
+                            ),
+                          ),
+                        )))),
 //////////////////////////////////////カルーセル//////////////////////////////////////
 
 //////////////////////////////////////営業時間//////////////////////////////////////
@@ -307,9 +439,7 @@ class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
                   Row(children: [
                     Text(
                       '開いている時間',
-                      style: TextStyle(
-                          backgroundColor: Colors.deepOrange[300],
-                          fontSize: 20),
+                      style: TextStyle(fontSize: 16),
                     ),
                   ]),
                   widget.doNotKnow
@@ -357,9 +487,7 @@ class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
                       children: [
                         Text(
                           '休みの日',
-                          style: TextStyle(
-                              backgroundColor: Colors.deepOrange[300],
-                              fontSize: 20),
+                          style: TextStyle(fontSize: 16),
                         )
                       ],
                     ),
@@ -418,9 +546,7 @@ class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
                       children: [
                         Text(
                           '電話番号',
-                          style: TextStyle(
-                              backgroundColor: Colors.deepOrange[300],
-                              fontSize: 20),
+                          style: TextStyle(fontSize: 16),
                         )
                       ],
                     ),
@@ -454,9 +580,7 @@ class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
                         Row(children: [
                           Text(
                             'リンク',
-                            style: TextStyle(
-                                backgroundColor: Colors.deepOrange[300],
-                                fontSize: 20),
+                            style: TextStyle(fontSize: 16),
                           ),
                         ]),
                         InkWell(
@@ -490,9 +614,7 @@ class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
                     Row(children: [
                       Text(
                         '駐車場と駐輪場',
-                        style: TextStyle(
-                            backgroundColor: Colors.deepOrange[300],
-                            fontSize: 20),
+                        style: TextStyle(fontSize: 16),
                       ),
                     ]),
                     Row(
@@ -558,9 +680,7 @@ class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
                   Row(children: [
                     Text(
                       '詳細・備考',
-                      style: TextStyle(
-                          backgroundColor: Colors.deepOrange[300],
-                          fontSize: 20),
+                      style: TextStyle(fontSize: 16),
                     ),
                   ]),
                   Wrap(
@@ -568,14 +688,14 @@ class _firstTabScreenState extends State<firstTabScreen> with RouteAware {
                   )
                 ])),
           ])),
-          ads
-              ? SizedBox.shrink()
-              : Container(
-            alignment: Alignment.center,
-            child: adWidget,
-            width: myBanner.size.width.toDouble(),
-            height: myBanner.size.height.toDouble(),
-          ),
+      ads
+          ? SizedBox.shrink()
+          : Container(
+              alignment: Alignment.center,
+              child: adWidget,
+              width: myBanner.size.width.toDouble(),
+              height: myBanner.size.height.toDouble(),
+            ),
     ]));
   }
 }
